@@ -1,0 +1,17 @@
+.button-tracked {
+  color: red !important;
+}
+
+.button-set-tracked {
+    color: #3f51b5 !important;
+}
+
+/* .Button2 {
+    color: red;
+    background-color:green;
+  } */
+
+/* Increase the specificity */
+/* .Button:hover {
+  color: white;
+} */

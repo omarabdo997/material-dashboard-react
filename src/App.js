@@ -18,6 +18,8 @@ import { useState, useEffect, useMemo } from "react";
 // react-router components
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 
+import Dashboard from "layouts/dashboard";
+
 // @mui material components
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -53,8 +55,11 @@ import { useMaterialUIController, setMiniSidenav, setOpenConfigurator } from "co
 import brandWhite from "assets/images/logo-ct.png";
 import brandDark from "assets/images/logo-ct-dark.png";
 
+import alertsListener from "./utils/Sockets";
+
 export default function App() {
   const [controller, dispatch] = useMaterialUIController();
+  const [cars, setCars] = useState({});
   const {
     miniSidenav,
     direction,
@@ -69,6 +74,38 @@ export default function App() {
   const [rtlCache, setRtlCache] = useState(null);
   const { pathname } = useLocation();
 
+  const randomHex = () => {
+    let letters = "0123456789ABCDEF";
+    let color = "#";
+    for (let i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+  };
+
+  const updateCars = (car) => {
+    setCars((cars) => {
+      console.log("old cars", cars);
+      let setTracked = false;
+      if (Object.keys(cars).length <= 0) setTracked = true;
+      const newCars = { ...cars };
+      if (car.carName in newCars) {
+        newCars[car.carName].lng = car.lng;
+        newCars[car.carName].lat = car.lat;
+      } else {
+        if (setTracked) car.isTracked = true;
+        else car.isTracked = false;
+        car.color = randomHex();
+        newCars[car.carName] = car;
+      }
+      console.log("new cars are", newCars);
+      return newCars;
+    });
+  };
+
+  useEffect(() => {
+    alertsListener(updateCars);
+  }, []);
   // Cache for the rtl
   useMemo(() => {
     const cacheRtl = createCache({
@@ -115,6 +152,16 @@ export default function App() {
         return getRoutes(route.collapse);
       }
 
+      if (route.route === "/dashboard") {
+        return (
+          <Route
+            exact
+            path={route.route}
+            element={<Dashboard cars={cars} setCars={setCars} />}
+            key={route.key}
+          />
+        );
+      }
       if (route.route) {
         return <Route exact path={route.route} element={route.component} key={route.key} />;
       }
