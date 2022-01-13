@@ -9,6 +9,8 @@ import MDTypography from "components/MDTypography";
 import MDAvatar from "components/MDAvatar";
 import MDProgress from "components/MDProgress";
 
+import Button from "@mui/material/Button";
+
 // Images
 import LogoAsana from "assets/images/small-logos/logo-asana.svg";
 import logoGithub from "assets/images/small-logos/github.svg";
@@ -16,6 +18,13 @@ import logoAtlassian from "assets/images/small-logos/logo-atlassian.svg";
 import logoSlack from "assets/images/small-logos/logo-slack.svg";
 import logoSpotify from "assets/images/small-logos/logo-spotify.svg";
 import logoInvesion from "assets/images/small-logos/logo-invision.svg";
+import speedICO from "assets/images/small-logos/speed.png";
+import callICO from "assets/images/small-logos/call.svg";
+import CardMedia from "@mui/material/CardMedia";
+
+import homeDecor1 from "assets/images/home-decor-1.jpg";
+
+import "./index.css";
 
 export default function data() {
   const Project = ({ image, name }) => (
@@ -40,126 +49,124 @@ export default function data() {
 
   return {
     columns: [
-      { Header: "project", accessor: "project", width: "30%", align: "left" },
-      { Header: "budget", accessor: "budget", align: "left" },
-      { Header: "status", accessor: "status", align: "center" },
-      { Header: "completion", accessor: "completion", align: "center" },
-      { Header: "action", accessor: "action", align: "center" },
+      { Header: "type", accessor: "type", align: "left" },
+      { Header: "image", accessor: "image", align: "center" },
+      { Header: "max speed", accessor: "max speed", align: "center" },
+      { Header: "speed", accessor: "speed", align: "center" },
+      { Header: "issue violation", accessor: "issue violation", align: "center" },
+      { Header: "delete violation", accessor: "delete violation", align: "center" },
     ],
 
     rows: [
       {
-        project: <Project image={LogoAsana} name="Asana" />,
-        budget: (
+        type: <Project image={speedICO} name="Speed" />,
+        image: (
+          <CardMedia
+            src={homeDecor1}
+            component="img"
+            title={"Violated Car"}
+            sx={{
+              maxWidth: "300px",
+              margin: 0,
+              boxShadow: ({ boxShadows: { md } }) => md,
+              objectFit: "cover",
+              objectPosition: "center",
+            }}
+          />
+        ),
+        "max speed": (
           <MDTypography component="a" href="#" variant="button" color="text" fontWeight="medium">
-            $2,500
+            120 Km/h
           </MDTypography>
         ),
-        status: (
+        speed: (
           <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            working
+            140 Km/h
           </MDTypography>
         ),
-        completion: <Progress color="info" value={60} />,
-        action: (
-          <MDTypography component="a" href="#" color="text">
-            <Icon>more_vert</Icon>
-          </MDTypography>
+        "issue violation": (
+          <Button component="a" variant="caption" className="delete-car" fontWeight="medium">
+            Issue Violation
+          </Button>
+        ),
+        "delete violation": (
+          <Button component="a" variant="caption" className="delete-car" fontWeight="medium">
+            delte Violation
+          </Button>
         ),
       },
       {
-        project: <Project image={logoGithub} name="Github" />,
-        budget: (
+        type: <Project image={speedICO} name="Speed" />,
+        image: (
+          <CardMedia
+            src={homeDecor1}
+            component="img"
+            title={"Violated Car"}
+            sx={{
+              maxWidth: "300px",
+              margin: 0,
+              boxShadow: ({ boxShadows: { md } }) => md,
+              objectFit: "cover",
+              objectPosition: "center",
+            }}
+          />
+        ),
+        "max speed": (
           <MDTypography component="a" href="#" variant="button" color="text" fontWeight="medium">
-            $5,000
+            120 Km/h
           </MDTypography>
         ),
-        status: (
+        speed: (
           <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            done
+            140 Km/h
           </MDTypography>
         ),
-        completion: <Progress color="success" value={100} />,
-        action: (
-          <MDTypography component="a" href="#" color="text">
-            <Icon>more_vert</Icon>
-          </MDTypography>
+        "issue violation": (
+          <Button component="a" variant="caption" color="text" fontWeight="medium">
+            Issued
+          </Button>
+        ),
+        "delete violation": (
+          <Button component="a" variant="caption" className="delete-car" fontWeight="medium">
+            delte Violation
+          </Button>
         ),
       },
       {
-        project: <Project image={logoAtlassian} name="Atlassian" />,
-        budget: (
+        type: <Project image={callICO} name="Distracted Driver" />,
+        image: (
+          <CardMedia
+            src={homeDecor1}
+            component="img"
+            title={"Violated Car"}
+            sx={{
+              maxWidth: "300px",
+              margin: 0,
+              boxShadow: ({ boxShadows: { md } }) => md,
+              objectFit: "cover",
+              objectPosition: "center",
+            }}
+          />
+        ),
+        "max speed": (
           <MDTypography component="a" href="#" variant="button" color="text" fontWeight="medium">
-            $3,400
+            N/A
           </MDTypography>
         ),
-        status: (
+        speed: (
           <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            canceled
+            N/A
           </MDTypography>
         ),
-        completion: <Progress color="error" value={30} />,
-        action: (
-          <MDTypography component="a" href="#" color="text">
-            <Icon>more_vert</Icon>
-          </MDTypography>
+        "issue violation": (
+          <Button component="a" variant="caption" color="text" fontWeight="medium">
+            Issued
+          </Button>
         ),
-      },
-      {
-        project: <Project image={logoSpotify} name="Spotify" />,
-        budget: (
-          <MDTypography component="a" href="#" variant="button" color="text" fontWeight="medium">
-            $14,000
-          </MDTypography>
-        ),
-        status: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            working
-          </MDTypography>
-        ),
-        completion: <Progress color="info" value={80} />,
-        action: (
-          <MDTypography component="a" href="#" color="text">
-            <Icon>more_vert</Icon>
-          </MDTypography>
-        ),
-      },
-      {
-        project: <Project image={logoSlack} name="Slack" />,
-        budget: (
-          <MDTypography component="a" href="#" variant="button" color="text" fontWeight="medium">
-            $1,000
-          </MDTypography>
-        ),
-        status: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            canceled
-          </MDTypography>
-        ),
-        completion: <Progress color="error" value={0} />,
-        action: (
-          <MDTypography component="a" href="#" color="text">
-            <Icon>more_vert</Icon>
-          </MDTypography>
-        ),
-      },
-      {
-        project: <Project image={logoInvesion} name="Invesion" />,
-        budget: (
-          <MDTypography component="a" href="#" variant="button" color="text" fontWeight="medium">
-            $2,300
-          </MDTypography>
-        ),
-        status: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            done
-          </MDTypography>
-        ),
-        completion: <Progress color="success" value={100} />,
-        action: (
-          <MDTypography component="a" href="#" color="text">
-            <Icon>more_vert</Icon>
-          </MDTypography>
+        "delete violation": (
+          <Button component="a" variant="caption" className="delete-car" fontWeight="medium">
+            delte Violation
+          </Button>
         ),
       },
     ],

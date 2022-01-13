@@ -51,6 +51,8 @@ import routes from "routes";
 // Material Dashboard 2 React contexts
 import { useMaterialUIController, setMiniSidenav, setOpenConfigurator } from "context";
 
+import MDSnackbar from "components/MDSnackbar";
+
 // Images
 import brandWhite from "assets/images/logo-ct.png";
 import brandDark from "assets/images/logo-ct-dark.png";
@@ -60,6 +62,30 @@ import alertsListener from "./utils/Sockets";
 export default function App() {
   const [controller, dispatch] = useMaterialUIController();
   const [cars, setCars] = useState({});
+  const [violationSB, setViolationSB] = useState(true);
+
+  const openViolationSB = () => setViolationSB(true);
+  const closeViolationSB = () => setViolationSB(false);
+
+  const renderViolationSB = (
+    <MDSnackbar
+      color="error"
+      icon="dangerous"
+      title="Speed Violation"
+      content={
+        <p>
+          Speed: 100Km/hr <br />
+          Max Speed: 80Km/hr
+        </p>
+      }
+      dateTime="Car 1"
+      open={violationSB}
+      onClose={closeViolationSB}
+      close={closeViolationSB}
+      bgWhite
+    />
+  );
+
   const {
     miniSidenav,
     direction,
@@ -70,6 +96,7 @@ export default function App() {
     whiteSidenav,
     darkMode,
   } = controller;
+  console.log("color is ", sidenavColor);
   const [onMouseEnter, setOnMouseEnter] = useState(false);
   const [rtlCache, setRtlCache] = useState(null);
   const { pathname } = useLocation();
@@ -240,6 +267,7 @@ export default function App() {
         {getRoutes(routes)}
         <Route path="*" element={<Navigate to="/dashboard" />} />
       </Routes>
+      {renderViolationSB}
     </ThemeProvider>
   );
 }

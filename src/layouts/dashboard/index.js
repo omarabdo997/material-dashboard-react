@@ -75,7 +75,7 @@ function Dashboard(props) {
               {/* <Projects /> */}
               <div style={{ height: "500px", width: "100%" }}>
                 <GoogleMapReact
-                  bootstrapURLKeys={{ key: "AIzaSyCLO6WuIVl8_mdU7PSd9xUWUV_hCbF7o6c" }}
+                  // bootstrapURLKeys={{ key: "AIzaSyCLO6WuIVl8_mdU7PSd9xUWUV_hCbF7o6c" }}
                   center={center}
                   zoom={zoom}
                 >

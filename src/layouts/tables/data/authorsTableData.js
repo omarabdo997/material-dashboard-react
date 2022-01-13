@@ -6,6 +6,8 @@ import MDTypography from "components/MDTypography";
 import MDAvatar from "components/MDAvatar";
 import MDBadge from "components/MDBadge";
 
+import Button from "@mui/material/Button";
+
 // Images
 // import logoXD from "assets/images/small-logos/logo-xd.svg";
 // import logoAtlassian from "assets/images/small-logos/logo-atlassian.svg";
@@ -14,8 +16,12 @@ import MDBadge from "components/MDBadge";
 // import logoJira from "assets/images/small-logos/logo-jira.svg";
 // import logoInvesion from "assets/images/small-logos/logo-invision.svg";
 import team2 from "assets/images/team-2.jpg";
+import MDButton from "components/MDButton";
+
 import team3 from "assets/images/team-3.jpg";
 import team4 from "assets/images/team-4.jpg";
+
+import "./index.css";
 
 export default function data() {
   const Author = ({ image, name, email }) => (
@@ -41,16 +47,17 @@ export default function data() {
 
   return {
     columns: [
-      { Header: "author", accessor: "author", width: "45%", align: "left" },
-      { Header: "function", accessor: "function", align: "left" },
-      { Header: "status", accessor: "status", align: "center" },
-      { Header: "employed", accessor: "employed", align: "center" },
-      { Header: "action", accessor: "action", align: "center" },
+      { Header: "car plate", accessor: "car plate", align: "left" },
+      // { Header: "function", accessor: "function", align: "left" },
+      // { Header: "status", accessor: "status", align: "center" },
+      { Header: "show violations", accessor: "show violations", align: "center" },
+      { Header: "edit", accessor: "edit", align: "center" },
+      { Header: "delete car", accessor: "delete car", align: "center" },
     ],
 
     rows: [
       {
-        author: <Author image={team2} name="John Michael" email="john@creative-tim.com" />,
+        "car plate": <Author image={team2} name="AA-123" email="" />,
         function: <Job title="Manager" description="Organization" />,
         status: (
           <MDBox ml={-1}>
@@ -62,14 +69,24 @@ export default function data() {
             23/04/18
           </MDTypography>
         ),
-        action: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Edit
-          </MDTypography>
+        "show violations": (
+          <Button component="a" variant="caption" className="show-violations" fontWeight="medium">
+            Show violations
+          </Button>
+        ),
+        edit: (
+          <Button component="a" variant="caption" color="text" fontWeight="medium">
+            edit
+          </Button>
+        ),
+        "delete car": (
+          <Button component="a" variant="caption" className="delete-car" fontWeight="medium">
+            Delete
+          </Button>
         ),
       },
       {
-        author: <Author image={team3} name="Alexa Liras" email="alexa@creative-tim.com" />,
+        "car plate": <Author image={team2} name="AB-134" email="" />,
         function: <Job title="Programator" description="Developer" />,
         status: (
           <MDBox ml={-1}>
@@ -86,81 +103,35 @@ export default function data() {
             Edit
           </MDTypography>
         ),
-      },
-      {
-        author: <Author image={team4} name="Laurent Perrier" email="laurent@creative-tim.com" />,
-        function: <Job title="Executive" description="Projects" />,
-        status: (
-          <MDBox ml={-1}>
-            <MDBadge badgeContent="online" color="success" variant="gradient" size="sm" />
-          </MDBox>
+        "show violations": (
+          <Button component="a" variant="caption" className="shown-violations" fontWeight="medium">
+            Violations Shown...
+          </Button>
         ),
-        employed: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            19/09/17
-          </MDTypography>
+        edit: (
+          <Button component="a" variant="caption" color="text" fontWeight="medium">
+            edit
+          </Button>
         ),
-        action: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Edit
-          </MDTypography>
+        "delete car": (
+          <Button component="a" variant="caption" className="delete-car" fontWeight="medium">
+            Delete
+          </Button>
         ),
       },
       {
-        author: <Author image={team3} name="Michael Levi" email="michael@creative-tim.com" />,
-        function: <Job title="Programator" description="Developer" />,
-        status: (
-          <MDBox ml={-1}>
-            <MDBadge badgeContent="online" color="success" variant="gradient" size="sm" />
-          </MDBox>
-        ),
-        employed: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            24/12/08
-          </MDTypography>
-        ),
-        action: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Edit
-          </MDTypography>
-        ),
-      },
-      {
-        author: <Author image={team3} name="Richard Gran" email="richard@creative-tim.com" />,
-        function: <Job title="Manager" description="Executive" />,
-        status: (
-          <MDBox ml={-1}>
-            <MDBadge badgeContent="offline" color="dark" variant="gradient" size="sm" />
-          </MDBox>
-        ),
-        employed: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            04/10/21
-          </MDTypography>
-        ),
-        action: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Edit
-          </MDTypography>
-        ),
-      },
-      {
-        author: <Author image={team4} name="Miriam Eric" email="miriam@creative-tim.com" />,
-        function: <Job title="Programator" description="Developer" />,
-        status: (
-          <MDBox ml={-1}>
-            <MDBadge badgeContent="offline" color="dark" variant="gradient" size="sm" />
-          </MDBox>
-        ),
-        employed: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            14/09/20
-          </MDTypography>
-        ),
-        action: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Edit
-          </MDTypography>
+        "car plate": (
+          <MDButton
+            component="a"
+            href="https://www.creative-tim.com/product/material-dashboard-pro-react"
+            target="_blank"
+            rel="noreferrer"
+            variant="gradient"
+            color="info"
+            fullWidth
+          >
+            add car
+          </MDButton>
         ),
       },
     ],

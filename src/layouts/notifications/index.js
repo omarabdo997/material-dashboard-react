@@ -99,10 +99,15 @@ function Notifications() {
   const renderErrorSB = (
     <MDSnackbar
       color="error"
-      icon="warning"
-      title="Material Dashboard"
-      content="Hello, world! This is a notification message"
-      dateTime="11 mins ago"
+      icon="dangerous"
+      title="Speed Violation"
+      content={
+        <p>
+          Speed: 100Km/hr <br />
+          Max Speed: 80Km/hr
+        </p>
+      }
+      dateTime="Car 1"
       open={errorSB}
       onClose={closeErrorSB}
       close={closeErrorSB}

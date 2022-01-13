@@ -30,6 +30,10 @@ import MDTypography from "components/MDTypography";
 // Custom styles for the MDSnackbar
 import MDSnackbarIconRoot from "components/MDSnackbar/MDSnackbarIconRoot";
 
+import CardMedia from "@mui/material/CardMedia";
+
+import homeDecor1 from "assets/images/home-decor-1.jpg";
+
 // Material Dashboard 2 PRO React context
 import { useMaterialUIController } from "context";
 
@@ -123,6 +127,35 @@ function MDSnackbar({ color, icon, title, dateTime, content, close, bgWhite, ...
           </MDBox>
         </MDBox>
         <Divider sx={{ margin: 0 }} light={dividerColor} />
+
+        <MDBox
+          p={1.5}
+          sx={{
+            fontSize: ({ typography: { size } }) => size.sm,
+            color: ({ palette: { white, text } }) => {
+              let colorValue = bgWhite || color === "light" ? text.main : white.main;
+
+              if (darkMode) {
+                colorValue = color === "light" ? "inherit" : white.main;
+              }
+
+              return colorValue;
+            },
+          }}
+        >
+          <CardMedia
+            src={homeDecor1}
+            component="img"
+            title={title}
+            sx={{
+              maxWidth: "400px",
+              margin: 0,
+              boxShadow: ({ boxShadows: { md } }) => md,
+              objectFit: "cover",
+              objectPosition: "center",
+            }}
+          />
+        </MDBox>
         <MDBox
           p={1.5}
           sx={{
