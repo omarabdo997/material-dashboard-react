@@ -62,6 +62,8 @@ import alertsListener from "./utils/Sockets";
 export default function App() {
   const [controller, dispatch] = useMaterialUIController();
   const [cars, setCars] = useState({});
+  const [carsData, setCarsData] = useState({ totalCount: 0, cars: [] });
+  const [carsPage, setCarsPage] = useState(1);
   const [violationSB, setViolationSB] = useState(true);
 
   const openViolationSB = () => setViolationSB(true);
@@ -132,6 +134,7 @@ export default function App() {
 
   useEffect(() => {
     alertsListener(updateCars);
+    // getAllCars(carsPage);
   }, []);
   // Cache for the rtl
   useMemo(() => {

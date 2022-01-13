@@ -17,6 +17,19 @@ Coded by www.creative-tim.com
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 
+import { useEffect } from "react";
+
+import { connect } from "react-redux";
+
+import {
+  handleRecieveCars,
+  handleDeleteCar,
+  handleShowViolations,
+  handleRecieveViolations,
+  handleIssueViolation,
+  handleDeleteViolation,
+} from "../../actions";
+
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
@@ -31,10 +44,38 @@ import DataTable from "examples/Tables/DataTable";
 import authorsTableData from "layouts/tables/data/authorsTableData";
 import projectsTableData from "layouts/tables/data/projectsTableData";
 
-function Tables() {
-  const { columns, rows } = authorsTableData();
-  const { columns: pColumns, rows: pRows } = projectsTableData();
+function Tables(props) {
+  const { violations, cars } = props;
+  const deleteCar = (plateNumber) => {
+    props.dispatch(handleDeleteCar(plateNumber));
+  };
+  const recieveCars = (page) => {
+    props.dispatch(handleRecieveCars(page));
+  };
+  const recieveViolations = (page, type) => {
+    props.dispatch(handleRecieveViolations(page, type));
+  };
+  const deleteViolation = (id) => {
+    props.dispatch(handleDeleteViolation(id));
+  };
+  const issueViolation = (id) => {
+    props.dispatch(handleIssueViolation(id));
+  };
+  const showViolations = (plateNumber) => {
+    props.dispatch(handleShowViolations(plateNumber));
+  };
+  const { columns, rows } = authorsTableData(cars, deleteCar, showViolations);
+  const { columns: pColumns, rows: pRows } = projectsTableData(
+    violations,
+    deleteViolation,
+    issueViolation
+  );
 
+  useEffect(() => {
+    console.log("in effect");
+    props.dispatch(handleRecieveCars(cars.currentPage));
+    props.dispatch(handleRecieveViolations(violations.currentPage, violations.currentType));
+  }, []);
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -60,8 +101,13 @@ function Tables() {
                 <DataTable
                   table={{ columns, rows }}
                   isSorted={false}
+                  canSearch={false}
+                  pageCount={Math.floor((props.cars.totalCount - 1) / 10) + 1}
+                  pageNumber={cars.currentPage}
+                  showTotalEntries={true}
                   entriesPerPage={false}
                   showTotalEntries={false}
+                  recieveData={recieveCars}
                   noEndBorder
                 />
               </MDBox>
@@ -87,8 +133,11 @@ function Tables() {
                 <DataTable
                   table={{ columns: pColumns, rows: pRows }}
                   isSorted={false}
+                  pageCount={Math.floor((props.violations.totalCount - 1) / 10) + 1}
+                  pageNumber={violations.currentPage}
                   entriesPerPage={false}
                   showTotalEntries={false}
+                  recieveData={recieveViolations}
                   noEndBorder
                 />
               </MDBox>
@@ -100,5 +149,7 @@ function Tables() {
     </DashboardLayout>
   );
 }
-
-export default Tables;
+const stateToProps = ({ cars, violations }) => {
+  return { cars, violations };
+};
+export default connect(stateToProps)(Tables);

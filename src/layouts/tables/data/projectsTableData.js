@@ -9,6 +9,8 @@ import MDTypography from "components/MDTypography";
 import MDAvatar from "components/MDAvatar";
 import MDProgress from "components/MDProgress";
 
+import { endPoint } from "../../../utils/API";
+
 import Button from "@mui/material/Button";
 
 // Images
@@ -26,7 +28,7 @@ import homeDecor1 from "assets/images/home-decor-1.jpg";
 
 import "./index.css";
 
-export default function data() {
+export default function data(violations, deleteViolation, issueViolation) {
   const Project = ({ image, name }) => (
     <MDBox display="flex" alignItems="center" lineHeight={1}>
       <MDAvatar src={image} name={name} size="sm" variant="rounded" />
@@ -46,6 +48,65 @@ export default function data() {
       </MDBox>
     </MDBox>
   );
+  const rows = [];
+
+  for (let violation of violations.violations) {
+    console.log("violations is", violation);
+    rows.push({
+      type: (
+        <Project
+          image={violation.type === 1 ? speedICO : callICO}
+          name={violation.type === 1 ? "speed" : "Distarcted Driver"}
+        />
+      ),
+      image: (
+        <CardMedia
+          src={endPoint + violation.imageUrl}
+          component="img"
+          title={"Violated Car"}
+          sx={{
+            maxWidth: "300px",
+            margin: 0,
+            boxShadow: ({ boxShadows: { md } }) => md,
+            objectFit: "cover",
+            objectPosition: "center",
+          }}
+        />
+      ),
+      "max speed": (
+        <MDTypography component="a" href="#" variant="button" color="text" fontWeight="medium">
+          {violation.speedLimit || "N/A"}
+        </MDTypography>
+      ),
+      speed: (
+        <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
+          {violation.speed || "N/A"}
+        </MDTypography>
+      ),
+      "issue violation": (
+        <Button
+          component="a"
+          variant="caption"
+          className={violation.issued ? "text" : "delete-car"}
+          fontWeight="medium"
+          onClick={() => issueViolation(violation.id)}
+        >
+          {violation.issued ? "issued" : "Issue violation"}
+        </Button>
+      ),
+      "delete violation": (
+        <Button
+          component="a"
+          variant="caption"
+          className="delete-car"
+          fontWeight="medium"
+          onClick={() => deleteViolation(violation.id)}
+        >
+          delete violation
+        </Button>
+      ),
+    });
+  }
 
   return {
     columns: [
@@ -57,118 +118,6 @@ export default function data() {
       { Header: "delete violation", accessor: "delete violation", align: "center" },
     ],
 
-    rows: [
-      {
-        type: <Project image={speedICO} name="Speed" />,
-        image: (
-          <CardMedia
-            src={homeDecor1}
-            component="img"
-            title={"Violated Car"}
-            sx={{
-              maxWidth: "300px",
-              margin: 0,
-              boxShadow: ({ boxShadows: { md } }) => md,
-              objectFit: "cover",
-              objectPosition: "center",
-            }}
-          />
-        ),
-        "max speed": (
-          <MDTypography component="a" href="#" variant="button" color="text" fontWeight="medium">
-            120 Km/h
-          </MDTypography>
-        ),
-        speed: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            140 Km/h
-          </MDTypography>
-        ),
-        "issue violation": (
-          <Button component="a" variant="caption" className="delete-car" fontWeight="medium">
-            Issue Violation
-          </Button>
-        ),
-        "delete violation": (
-          <Button component="a" variant="caption" className="delete-car" fontWeight="medium">
-            delte Violation
-          </Button>
-        ),
-      },
-      {
-        type: <Project image={speedICO} name="Speed" />,
-        image: (
-          <CardMedia
-            src={homeDecor1}
-            component="img"
-            title={"Violated Car"}
-            sx={{
-              maxWidth: "300px",
-              margin: 0,
-              boxShadow: ({ boxShadows: { md } }) => md,
-              objectFit: "cover",
-              objectPosition: "center",
-            }}
-          />
-        ),
-        "max speed": (
-          <MDTypography component="a" href="#" variant="button" color="text" fontWeight="medium">
-            120 Km/h
-          </MDTypography>
-        ),
-        speed: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            140 Km/h
-          </MDTypography>
-        ),
-        "issue violation": (
-          <Button component="a" variant="caption" color="text" fontWeight="medium">
-            Issued
-          </Button>
-        ),
-        "delete violation": (
-          <Button component="a" variant="caption" className="delete-car" fontWeight="medium">
-            delte Violation
-          </Button>
-        ),
-      },
-      {
-        type: <Project image={callICO} name="Distracted Driver" />,
-        image: (
-          <CardMedia
-            src={homeDecor1}
-            component="img"
-            title={"Violated Car"}
-            sx={{
-              maxWidth: "300px",
-              margin: 0,
-              boxShadow: ({ boxShadows: { md } }) => md,
-              objectFit: "cover",
-              objectPosition: "center",
-            }}
-          />
-        ),
-        "max speed": (
-          <MDTypography component="a" href="#" variant="button" color="text" fontWeight="medium">
-            N/A
-          </MDTypography>
-        ),
-        speed: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            N/A
-          </MDTypography>
-        ),
-        "issue violation": (
-          <Button component="a" variant="caption" color="text" fontWeight="medium">
-            Issued
-          </Button>
-        ),
-        "delete violation": (
-          <Button component="a" variant="caption" className="delete-car" fontWeight="medium">
-            delte Violation
-          </Button>
-        ),
-      },
-    ],
+    rows,
   };
 }

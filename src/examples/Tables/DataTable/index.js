@@ -45,18 +45,26 @@ function DataTable({
   showTotalEntries,
   table,
   pagination,
+  pageNumber,
+  pageCount,
   isSorted,
+  recieveData,
   noEndBorder,
 }) {
-  const defaultValue = entriesPerPage.defaultValue ? entriesPerPage.defaultValue : 10;
+  const defaultValue = entriesPerPage.defaultValue ? entriesPerPage.defaultValue : 11;
   const entries = entriesPerPage.entries
     ? entriesPerPage.entries.map((el) => el.toString())
     : ["5", "10", "15", "20", "25"];
   const columns = useMemo(() => table.columns, [table]);
   const data = useMemo(() => table.rows, [table]);
+  const pageOptions = [...Array(pageCount).keys()];
 
   const tableInstance = useTable(
-    { columns, data, initialState: { pageIndex: 0 } },
+    {
+      columns,
+      data,
+      initialState: { pageIndex: pageNumber - 1 || 0 },
+    },
     useGlobalFilter,
     useSortBy,
     usePagination
@@ -69,17 +77,30 @@ function DataTable({
     prepareRow,
     rows,
     page,
-    pageOptions,
-    canPreviousPage,
-    canNextPage,
-    gotoPage,
-    nextPage,
-    previousPage,
+    // canPreviousPage,
+    // canNextPage,
+    // gotoPage,
+    // nextPage,
+    // previousPage,
     setPageSize,
+    setPageCount,
     setGlobalFilter,
-    state: { pageIndex, pageSize, globalFilter },
+    state: { pageSize, globalFilter },
   } = tableInstance;
+  const [pageIndex, setPageIndex] = useState(pageNumber - 1);
 
+  useEffect(() => recieveData(pageIndex + 1), [pageIndex]);
+
+  const nextPage = () => {
+    setPageIndex(pageIndex + 1);
+  };
+  const previousPage = () => {
+    setPageIndex(pageIndex - 1);
+  };
+  const gotoPage = (page) => {
+    if (page < 0 || page + 1 > pageCount) return;
+    setPageIndex(page);
+  };
   // Set the default value for the entries per page when component mounts
   useEffect(() => setPageSize(defaultValue || 10), [defaultValue]);
 
@@ -100,7 +121,7 @@ function DataTable({
 
   // Handler for the input to set the pagination index
   const handleInputPagination = ({ target: { value } }) =>
-    value > pageOptions.length || value < 0 ? gotoPage(0) : gotoPage(Number(value));
+    value > pageCount || value < 0 ? gotoPage(0) : gotoPage(Number(value));
 
   // Customized page options starting from 1
   const customizedPageOptions = pageOptions.map((option) => option + 1);
@@ -239,7 +260,7 @@ function DataTable({
             variant={pagination.variant ? pagination.variant : "gradient"}
             color={pagination.color ? pagination.color : "info"}
           >
-            {canPreviousPage && (
+            {pageIndex > 0 && (
               <MDPagination item onClick={() => previousPage()}>
                 <Icon sx={{ fontWeight: "bold" }}>chevron_left</Icon>
               </MDPagination>
@@ -255,7 +276,7 @@ function DataTable({
             ) : (
               renderPagination
             )}
-            {canNextPage && (
+            {pageCount > pageIndex + 1 && (
               <MDPagination item onClick={() => nextPage()}>
                 <Icon sx={{ fontWeight: "bold" }}>chevron_right</Icon>
               </MDPagination>

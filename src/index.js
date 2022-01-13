@@ -17,6 +17,12 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter } from "react-router-dom";
 import App from "App";
+import { Provider } from "react-redux";
+import { createStore } from "redux";
+import reducers from "./reducers";
+import middleware from "./middleware";
+
+const store = createStore(reducers, middleware);
 
 // Soft UI Context Provider
 import { MaterialUIControllerProvider } from "context";
@@ -24,7 +30,9 @@ import { MaterialUIControllerProvider } from "context";
 ReactDOM.render(
   <BrowserRouter>
     <MaterialUIControllerProvider>
-      <App />
+      <Provider store={store}>
+        <App />
+      </Provider>
     </MaterialUIControllerProvider>
   </BrowserRouter>,
   document.getElementById("root")

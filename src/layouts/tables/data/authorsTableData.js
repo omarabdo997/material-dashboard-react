@@ -23,7 +23,7 @@ import team4 from "assets/images/team-4.jpg";
 
 import "./index.css";
 
-export default function data() {
+export default function data(cars, deleteCar, showViolations) {
   const Author = ({ image, name, email }) => (
     <MDBox display="flex" alignItems="center" lineHeight={1}>
       <MDAvatar src={image} name={name} size="sm" />
@@ -45,95 +45,62 @@ export default function data() {
     </MDBox>
   );
 
+  const rows = [];
+  for (let car of cars.cars) {
+    rows.push({
+      "car plate": <Author image={team2} name={car.plateNumber} email="" />,
+      "show violations": (
+        <Button
+          component="a"
+          variant="caption"
+          className={car.showViolations ? "shown-violations" : "show-violations"}
+          fontWeight="medium"
+          onClick={() => showViolations(car.plateNumber)}
+        >
+          {car.showViolations ? "Violations Shown..." : "Show violations"}
+        </Button>
+      ),
+      edit: (
+        <Button component="a" variant="caption" color="text" fontWeight="medium">
+          edit
+        </Button>
+      ),
+      "delete car": (
+        <Button
+          component="a"
+          variant="caption"
+          className="delete-car"
+          fontWeight="medium"
+          onClick={() => deleteCar(car.plateNumber)}
+        >
+          Delete
+        </Button>
+      ),
+    });
+  }
+  rows.push({
+    "car plate": (
+      <MDButton
+        component="a"
+        href="https://www.creative-tim.com/product/material-dashboard-pro-react"
+        target="_blank"
+        rel="noreferrer"
+        variant="gradient"
+        color="info"
+        fullWidth
+      >
+        add car
+      </MDButton>
+    ),
+  });
   return {
     columns: [
       { Header: "car plate", accessor: "car plate", align: "left" },
-      // { Header: "function", accessor: "function", align: "left" },
-      // { Header: "status", accessor: "status", align: "center" },
       { Header: "show violations", accessor: "show violations", align: "center" },
       { Header: "edit", accessor: "edit", align: "center" },
       { Header: "delete car", accessor: "delete car", align: "center" },
     ],
 
-    rows: [
-      {
-        "car plate": <Author image={team2} name="AA-123" email="" />,
-        function: <Job title="Manager" description="Organization" />,
-        status: (
-          <MDBox ml={-1}>
-            <MDBadge badgeContent="online" color="success" variant="gradient" size="sm" />
-          </MDBox>
-        ),
-        employed: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            23/04/18
-          </MDTypography>
-        ),
-        "show violations": (
-          <Button component="a" variant="caption" className="show-violations" fontWeight="medium">
-            Show violations
-          </Button>
-        ),
-        edit: (
-          <Button component="a" variant="caption" color="text" fontWeight="medium">
-            edit
-          </Button>
-        ),
-        "delete car": (
-          <Button component="a" variant="caption" className="delete-car" fontWeight="medium">
-            Delete
-          </Button>
-        ),
-      },
-      {
-        "car plate": <Author image={team2} name="AB-134" email="" />,
-        function: <Job title="Programator" description="Developer" />,
-        status: (
-          <MDBox ml={-1}>
-            <MDBadge badgeContent="offline" color="dark" variant="gradient" size="sm" />
-          </MDBox>
-        ),
-        employed: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            11/01/19
-          </MDTypography>
-        ),
-        action: (
-          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Edit
-          </MDTypography>
-        ),
-        "show violations": (
-          <Button component="a" variant="caption" className="shown-violations" fontWeight="medium">
-            Violations Shown...
-          </Button>
-        ),
-        edit: (
-          <Button component="a" variant="caption" color="text" fontWeight="medium">
-            edit
-          </Button>
-        ),
-        "delete car": (
-          <Button component="a" variant="caption" className="delete-car" fontWeight="medium">
-            Delete
-          </Button>
-        ),
-      },
-      {
-        "car plate": (
-          <MDButton
-            component="a"
-            href="https://www.creative-tim.com/product/material-dashboard-pro-react"
-            target="_blank"
-            rel="noreferrer"
-            variant="gradient"
-            color="info"
-            fullWidth
-          >
-            add car
-          </MDButton>
-        ),
-      },
-    ],
+    rows,
   };
 }
