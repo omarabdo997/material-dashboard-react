@@ -17,6 +17,7 @@ import { useState, useEffect, useMemo } from "react";
 
 // react-router components
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { handleRecieveCars, handleRecieveViolations, handleAddViolation } from "./actions";
 
 import Dashboard from "layouts/dashboard";
 
@@ -53,18 +54,21 @@ import { useMaterialUIController, setMiniSidenav, setOpenConfigurator } from "co
 
 import MDSnackbar from "components/MDSnackbar";
 
+import { endPoint } from "./utils/API";
+
 // Images
 import brandWhite from "assets/images/logo-ct.png";
 import brandDark from "assets/images/logo-ct-dark.png";
 
-import alertsListener from "./utils/Sockets";
+import { connect } from "react-redux";
 
-export default function App() {
+import { violationsListener } from "./utils/Sockets";
+
+function App(props) {
+  const { violations, cars } = props;
   const [controller, dispatch] = useMaterialUIController();
-  const [cars, setCars] = useState({});
-  const [carsData, setCarsData] = useState({ totalCount: 0, cars: [] });
-  const [carsPage, setCarsPage] = useState(1);
-  const [violationSB, setViolationSB] = useState(true);
+  const [violationSB, setViolationSB] = useState(false);
+  const [violation, setViolation] = useState({});
 
   const openViolationSB = () => setViolationSB(true);
   const closeViolationSB = () => setViolationSB(false);
@@ -73,20 +77,41 @@ export default function App() {
     <MDSnackbar
       color="error"
       icon="dangerous"
-      title="Speed Violation"
+      title={violation?.type === 1 ? "Speed Violation" : "Distracted Driver Violation"}
       content={
         <p>
-          Speed: 100Km/hr <br />
-          Max Speed: 80Km/hr
+          Speed: {violation?.speed} <br />
+          Max Speed: {violation?.speedLimit}
         </p>
       }
-      dateTime="Car 1"
+      dateTime={violation?.issuer}
       open={violationSB}
       onClose={closeViolationSB}
       close={closeViolationSB}
+      img={endPoint + violation?.imageUrl}
       bgWhite
     />
   );
+
+  const onViolation = (violation) => {
+    props.dispatch(handleAddViolation(violation));
+    setViolation(violation);
+    closeViolationSB();
+    openViolationSB();
+  };
+
+  useEffect(() => {
+    console.log("in effect");
+    props.dispatch(handleRecieveCars(cars.currentPage));
+    props.dispatch(
+      handleRecieveViolations(
+        violations.currentPage,
+        violations.currentType,
+        violations.currentPlateNumber
+      )
+    );
+    violationsListener(onViolation);
+  }, []);
 
   const {
     miniSidenav,
@@ -103,40 +128,6 @@ export default function App() {
   const [rtlCache, setRtlCache] = useState(null);
   const { pathname } = useLocation();
 
-  const randomHex = () => {
-    let letters = "0123456789ABCDEF";
-    let color = "#";
-    for (let i = 0; i < 6; i++) {
-      color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-  };
-
-  const updateCars = (car) => {
-    setCars((cars) => {
-      console.log("old cars", cars);
-      let setTracked = false;
-      if (Object.keys(cars).length <= 0) setTracked = true;
-      const newCars = { ...cars };
-      if (car.carName in newCars) {
-        newCars[car.carName].lng = car.lng;
-        newCars[car.carName].lat = car.lat;
-      } else {
-        if (setTracked) car.isTracked = true;
-        else car.isTracked = false;
-        car.color = randomHex();
-        newCars[car.carName] = car;
-      }
-      console.log("new cars are", newCars);
-      return newCars;
-    });
-  };
-
-  useEffect(() => {
-    alertsListener(updateCars);
-    // getAllCars(carsPage);
-  }, []);
-  // Cache for the rtl
   useMemo(() => {
     const cacheRtl = createCache({
       key: "rtl",
@@ -184,12 +175,7 @@ export default function App() {
 
       if (route.route === "/dashboard") {
         return (
-          <Route
-            exact
-            path={route.route}
-            element={<Dashboard cars={cars} setCars={setCars} />}
-            key={route.key}
-          />
+          <Route exact path={route.route} element={<Dashboard cars={cars} />} key={route.key} />
         );
       }
       if (route.route) {
@@ -274,3 +260,8 @@ export default function App() {
     </ThemeProvider>
   );
 }
+
+const stateToProps = ({ cars, violations }) => {
+  return { cars, violations };
+};
+export default connect(stateToProps)(App);

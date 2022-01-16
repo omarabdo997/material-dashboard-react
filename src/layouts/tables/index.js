@@ -17,12 +17,14 @@ Coded by www.creative-tim.com
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { connect } from "react-redux";
 
 import {
   handleRecieveCars,
+  handleAddCar,
+  handleUpdateCar,
   handleDeleteCar,
   handleShowViolations,
   handleRecieveViolations,
@@ -36,6 +38,7 @@ import MDTypography from "components/MDTypography";
 
 // Material Dashboard 2 React example components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
+import CarDialog from "examples/Modals/CarDialog";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import DataTable from "examples/Tables/DataTable";
@@ -46,14 +49,38 @@ import projectsTableData from "layouts/tables/data/projectsTableData";
 
 function Tables(props) {
   const { violations, cars } = props;
+  const [addCarDialogOpen, setAddCarDialogOpen] = useState(false);
+  const [editCarDialogOpen, setEditCarDialogOpen] = useState("");
+
+  const openAddCarDialog = () => {
+    setAddCarDialogOpen(true);
+  };
+
+  const openEditCarDialog = (plateNumber) => {
+    setEditCarDialogOpen(plateNumber);
+  };
+
+  const addCar = (car) => {
+    props.dispatch(handleAddCar(car));
+    setAddCarDialogOpen(false);
+  };
+  const editCar = (car, plateNumber) => {
+    props.dispatch(handleUpdateCar(car, plateNumber));
+    setEditCarDialogOpen(false);
+  };
   const deleteCar = (plateNumber) => {
     props.dispatch(handleDeleteCar(plateNumber));
   };
   const recieveCars = (page) => {
     props.dispatch(handleRecieveCars(page));
   };
-  const recieveViolations = (page, type) => {
-    props.dispatch(handleRecieveViolations(page, type));
+  const recieveViolations = (page, type, plateNumber) => {
+    props.dispatch(handleRecieveViolations(page, type, plateNumber));
+  };
+  const changePageViolations = (page) => {
+    props.dispatch(
+      handleRecieveViolations(page, violations.currentType, violations.currentPlateNumber)
+    );
   };
   const deleteViolation = (id) => {
     props.dispatch(handleDeleteViolation(id));
@@ -63,21 +90,50 @@ function Tables(props) {
   };
   const showViolations = (plateNumber) => {
     props.dispatch(handleShowViolations(plateNumber));
+    recieveViolations(1, violations.currentType, plateNumber);
   };
-  const { columns, rows } = authorsTableData(cars, deleteCar, showViolations);
+  const changeType = (type) => {
+    switch (type) {
+      case "Speed": {
+        return recieveViolations(1, 1, violations.currentPlateNumber);
+      }
+      case "Distracted Driver": {
+        return recieveViolations(1, 3, violations.currentPlateNumber);
+      }
+      default: {
+        return recieveViolations(1, undefined, violations.currentPlateNumber);
+      }
+    }
+  };
+  const { columns, rows } = authorsTableData(
+    cars,
+    deleteCar,
+    showViolations,
+    openAddCarDialog,
+    openEditCarDialog
+  );
   const { columns: pColumns, rows: pRows } = projectsTableData(
     violations,
     deleteViolation,
     issueViolation
   );
 
-  useEffect(() => {
-    console.log("in effect");
-    props.dispatch(handleRecieveCars(cars.currentPage));
-    props.dispatch(handleRecieveViolations(violations.currentPage, violations.currentType));
-  }, []);
   return (
     <DashboardLayout>
+      <CarDialog
+        title={"Add Car"}
+        submitText={"Add"}
+        open={addCarDialogOpen}
+        cancelFunction={() => setAddCarDialogOpen(false)}
+        submitFunction={addCar}
+      />
+      <CarDialog
+        title={"Edit Car"}
+        submitText={"Edit"}
+        open={editCarDialogOpen}
+        cancelFunction={() => setEditCarDialogOpen("")}
+        submitFunction={editCar}
+      />
       <DashboardNavbar />
       <MDBox pt={6} pb={3}>
         <Grid container spacing={6}>
@@ -126,7 +182,8 @@ function Tables(props) {
                 coloredShadow="info"
               >
                 <MDTypography variant="h6" color="white">
-                  Violations Table
+                  {violations.currentPlateNumber ? "Car " + violations.currentPlateNumber : "All"}{" "}
+                  Violations
                 </MDTypography>
               </MDBox>
               <MDBox pt={3}>
@@ -135,9 +192,11 @@ function Tables(props) {
                   isSorted={false}
                   pageCount={Math.floor((props.violations.totalCount - 1) / 10) + 1}
                   pageNumber={violations.currentPage}
-                  entriesPerPage={false}
+                  entriesPerPage={true}
                   showTotalEntries={false}
-                  recieveData={recieveViolations}
+                  recieveData={changePageViolations}
+                  changeType={changeType}
+                  currentType={violations.currentType}
                   noEndBorder
                 />
               </MDBox>

@@ -40,10 +40,12 @@ import DirectionsCarFilledIcon from "@mui/icons-material/DirectionsCarFilled";
 
 // Dashboard components
 // import Projects from "layouts/dashboard/components/Projects";
+import { connect } from "react-redux";
+
 import CarsOverview from "layouts/dashboard/components/CarsOverview";
 
 function Dashboard(props) {
-  const { cars, setCars } = props;
+  const { cars } = props;
   console.log("from dashboard", cars);
   // const { sales, tasks } = reportsLineChartData;
   const [center, setCenter] = useState({
@@ -53,11 +55,11 @@ function Dashboard(props) {
 
   const [zoom] = useState(13);
 
-  for (const [key, value] of Object.entries(cars)) {
-    if (value.isTracked === true && (center.lat !== value.lat || center.lng !== value.lng)) {
+  for (const car of cars.cars) {
+    if (car.isTracked === true && (center.lat !== car.lastLat || center.lng !== car.lastLng)) {
       setCenter({
-        lat: value.lat,
-        lng: value.lng,
+        lat: car.lastLat,
+        lng: car.lastLng,
       });
 
       break;
@@ -79,20 +81,20 @@ function Dashboard(props) {
                   center={center}
                   zoom={zoom}
                 >
-                  {Object.keys(cars).map((key) => (
+                  {cars.cars.map((car) => (
                     <DirectionsCarFilledIcon
-                      sx={{ color: cars[key].color }}
-                      lat={cars[key].lat}
-                      lng={cars[key].lng}
+                      sx={{ color: car.color }}
+                      lat={car.lastLat}
+                      lng={car.lastLng}
                       fontSize="medium"
-                      key={key}
+                      key={car.plateNumber}
                     />
                   ))}
                 </GoogleMapReact>
               </div>
             </Grid>
             <Grid item xs={12} md={6} lg={4}>
-              <CarsOverview cars={cars} setCars={setCars} />
+              {/* <CarsOverview cars={cars} setCars={setCars} /> */}
             </Grid>
           </Grid>
         </MDBox>
@@ -174,5 +176,7 @@ function Dashboard(props) {
     </DashboardLayout>
   );
 }
-
-export default Dashboard;
+const stateToProps = ({ cars, violations }) => {
+  return { cars, violations };
+};
+export default connect(stateToProps)(Dashboard);

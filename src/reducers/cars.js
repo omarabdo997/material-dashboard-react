@@ -15,6 +15,7 @@ const cars = (
     cars: [],
     totalCount: 0,
     currentPage: 1,
+    currentShownPlate: undefined,
   },
   action
 ) => {
@@ -37,8 +38,12 @@ const cars = (
         if (i === 0) {
           car.isTracked = true;
         }
+
         car.color = randomHex();
         car.showViolations = false;
+        if (car.plateNumber === state.currentShownPlate) {
+          car.showViolations = true;
+        }
         i++;
       }
       return {
@@ -61,7 +66,9 @@ const cars = (
       const updatedCars = _.cloneDeep(state.cars);
       for (let oldCar of updatedCars) {
         if (oldCar.plateNumber === plateNumber) {
-          oldCar = { ...oldCar, ...car };
+          Object.keys(oldCar).forEach((key) => {
+            oldCar[key] = car[key];
+          });
         }
       }
       return {
@@ -81,6 +88,7 @@ const cars = (
       }
       return {
         ...state,
+        currentShownPlate: plateNumber,
         cars: updatedCars,
       };
     }

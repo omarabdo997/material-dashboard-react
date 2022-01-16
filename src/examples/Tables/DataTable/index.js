@@ -49,12 +49,12 @@ function DataTable({
   pageCount,
   isSorted,
   recieveData,
+  changeType,
+  currentType,
   noEndBorder,
 }) {
-  const defaultValue = entriesPerPage.defaultValue ? entriesPerPage.defaultValue : 11;
-  const entries = entriesPerPage.entries
-    ? entriesPerPage.entries.map((el) => el.toString())
-    : ["5", "10", "15", "20", "25"];
+  const defaultValue = entriesPerPage.defaultValue ? entriesPerPage.defaultValue : "All";
+  const entries = ["All", "Speed", "Distracted Driver"];
   const columns = useMemo(() => table.columns, [table]);
   const data = useMemo(() => table.rows, [table]);
   const pageOptions = [...Array(pageCount).keys()];
@@ -64,6 +64,7 @@ function DataTable({
       columns,
       data,
       initialState: { pageIndex: pageNumber - 1 || 0 },
+      manualPagination: true,
     },
     useGlobalFilter,
     useSortBy,
@@ -87,19 +88,22 @@ function DataTable({
     setGlobalFilter,
     state: { pageSize, globalFilter },
   } = tableInstance;
-  const [pageIndex, setPageIndex] = useState(pageNumber - 1);
-
-  useEffect(() => recieveData(pageIndex + 1), [pageIndex]);
+  // const [pageIndex, setPageIndex] = useState(pageNumber - 1);
+  // console.log("new page number is", pageIndex);
+  // changeType("Speed");
+  const pageIndex = pageNumber - 1;
 
   const nextPage = () => {
-    setPageIndex(pageIndex + 1);
+    recieveData(pageNumber + 1);
   };
   const previousPage = () => {
-    setPageIndex(pageIndex - 1);
+    recieveData(pageNumber - 1);
   };
   const gotoPage = (page) => {
     if (page < 0 || page + 1 > pageCount) return;
-    setPageIndex(page);
+    // recieveData(page + 1);
+
+    recieveData(page + 1);
   };
   // Set the default value for the entries per page when component mounts
   useEffect(() => setPageSize(defaultValue || 10), [defaultValue]);
@@ -174,17 +178,20 @@ function DataTable({
             <MDBox display="flex" alignItems="center">
               <Autocomplete
                 disableClearable
-                value={pageSize.toString()}
+                // value={pageSize.toString()}
                 options={entries}
                 onChange={(event, newValue) => {
-                  setEntriesPerPage(parseInt(newValue, 10));
+                  changeType(newValue);
                 }}
+                defaultValue={
+                  currentType === 1 ? "Speed" : currentType === 3 ? "Distracted Driver" : "All"
+                }
                 size="small"
-                sx={{ width: "5rem" }}
-                renderInput={(params) => <MDInput {...params} />}
+                sx={{ width: "200px" }}
+                renderInput={(params) => <MDInput {...params} label="Violations" />}
               />
               <MDTypography variant="caption" color="secondary">
-                &nbsp;&nbsp;entries per page
+                &nbsp;&nbsp;Violations Type
               </MDTypography>
             </MDBox>
           )}

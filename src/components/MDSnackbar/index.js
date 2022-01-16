@@ -32,12 +32,10 @@ import MDSnackbarIconRoot from "components/MDSnackbar/MDSnackbarIconRoot";
 
 import CardMedia from "@mui/material/CardMedia";
 
-import homeDecor1 from "assets/images/home-decor-1.jpg";
-
 // Material Dashboard 2 PRO React context
 import { useMaterialUIController } from "context";
 
-function MDSnackbar({ color, icon, title, dateTime, content, close, bgWhite, ...rest }) {
+function MDSnackbar({ color, icon, title, dateTime, img, content, close, bgWhite, ...rest }) {
   const [controller] = useMaterialUIController();
   const { darkMode } = controller;
 
@@ -144,7 +142,7 @@ function MDSnackbar({ color, icon, title, dateTime, content, close, bgWhite, ...
           }}
         >
           <CardMedia
-            src={homeDecor1}
+            src={img}
             component="img"
             title={title}
             sx={{

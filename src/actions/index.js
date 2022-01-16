@@ -3,7 +3,7 @@ import { authUser, unauthUser } from "./authedUser";
 import { recieveUsers, addUserQuestion, answerUserQuestion, addUser } from "./users";
 import { addQuestion } from "./questions";
 import { addCar, recieveCars, deleteCar, editCar, showViolations } from "./cars";
-import { recieveViolations, deleteViolation, issueViolation } from "./violations";
+import { recieveViolations, deleteViolation, issueViolation, addViolation } from "./violations";
 import { recieveQuestions, removeQuestions, answerQuestion } from "./questions";
 import { addMssg } from "./messages";
 import {
@@ -71,7 +71,7 @@ export const handleUpdateCar = (car, plateNumber) => {
   return async (dispatch) => {
     const res = await updateCarAPI(car, plateNumber);
     if (res.success === true) {
-      dispatch(editCar(res.cars, res.totalCount));
+      dispatch(editCar(res.car, plateNumber));
     } else {
       dispatch(
         addMssg({
@@ -89,13 +89,13 @@ export const handleShowViolations = (plateNumber) => {
   };
 };
 
-export const handleRecieveViolations = (page, type = undefined) => {
+export const handleRecieveViolations = (page, type = undefined, plateNumber = undefined) => {
   return async (dispatch) => {
     console.log("in dispatch violations");
-    const res = await getViolationsAPI(page, type);
+    const res = await getViolationsAPI(page, type, plateNumber);
     if (res.success === true) {
       console.log("violations are", res.violations);
-      dispatch(recieveViolations(res.violations, res.totalCount, page, type));
+      dispatch(recieveViolations(res.violations, res.totalCount, page, type, plateNumber));
     } else {
       dispatch(
         addMssg({
@@ -105,13 +105,19 @@ export const handleRecieveViolations = (page, type = undefined) => {
     }
   };
 };
+export const handleAddViolation = (violation) => {
+  return (dispatch) => {
+    console.log("in add violation");
+    dispatch(addViolation(violation));
+  };
+};
 
 export const handleDeleteViolation = (id) => {
   return async (dispatch, getState) => {
     const res = await deleteViolationAPI(id);
     if (res.success === true) {
-      const { currentPage, currentType } = getState().violations;
-      const res2 = await getViolationsAPI(currentPage, currentType);
+      const { currentPage, currentType, currentPlateNumber } = getState().violations;
+      const res2 = await getViolationsAPI(currentPage, currentType, currentPlateNumber);
       dispatch(deleteViolation(res2.violations, res2.totalCount));
     } else {
       dispatch(

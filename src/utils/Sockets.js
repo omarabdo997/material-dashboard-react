@@ -19,10 +19,15 @@ socket.on("connect", () => {
 //         cb()
 //     })
 // }
-const alertsListener = (cb) => {
+export const alertsListener = (cb) => {
   socket.on("car", (car) => {
     cb(car);
   });
 };
 
-export default alertsListener;
+export const violationsListener = (cb) => {
+  socket.on("violations", (violation) => {
+    console.log(cb);
+    cb(violation);
+  });
+};

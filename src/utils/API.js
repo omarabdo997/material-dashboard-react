@@ -108,12 +108,14 @@ export const getAllCarsApi = async (page = 1) => {
   return await callGet(url);
 };
 
-export const getViolationsAPI = async (page = 1, type = undefined) => {
+export const getViolationsAPI = async (page = 1, type = undefined, plateNumber = undefined) => {
   let url;
   if (type !== undefined) {
-    url = endPoint + `/api/violations?page=${page}?type=${type}`;
+    if (plateNumber === undefined) url = endPoint + `/api/violations?page=${page}&type=${type}`;
+    else url = endPoint + `/api/cars/${plateNumber}/violations?page=${page}&type=${type}`;
   } else {
-    url = endPoint + `/api/violations?page=${page}`;
+    if (plateNumber === undefined) url = endPoint + `/api/violations?page=${page}`;
+    else url = endPoint + `/api/cars/${plateNumber}/violations?page=${page}`;
   }
   return await callGet(url);
 };

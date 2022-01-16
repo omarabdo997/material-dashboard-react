@@ -23,7 +23,7 @@ import team4 from "assets/images/team-4.jpg";
 
 import "./index.css";
 
-export default function data(cars, deleteCar, showViolations) {
+export default function data(cars, deleteCar, showViolations, openDialog, openEditDialog) {
   const Author = ({ image, name, email }) => (
     <MDBox display="flex" alignItems="center" lineHeight={1}>
       <MDAvatar src={image} name={name} size="sm" />
@@ -44,7 +44,7 @@ export default function data(cars, deleteCar, showViolations) {
       <MDTypography variant="caption">{description}</MDTypography>
     </MDBox>
   );
-
+  let showAllViolations = !cars.currentShownPlate;
   const rows = [];
   for (let car of cars.cars) {
     rows.push({
@@ -55,13 +55,22 @@ export default function data(cars, deleteCar, showViolations) {
           variant="caption"
           className={car.showViolations ? "shown-violations" : "show-violations"}
           fontWeight="medium"
-          onClick={() => showViolations(car.plateNumber)}
+          onClick={() => {
+            if (car.showViolations) return;
+            showViolations(car.plateNumber);
+          }}
         >
           {car.showViolations ? "Violations Shown..." : "Show violations"}
         </Button>
       ),
       edit: (
-        <Button component="a" variant="caption" color="text" fontWeight="medium">
+        <Button
+          component="a"
+          variant="caption"
+          color="text"
+          fontWeight="medium"
+          onClick={() => openEditDialog(car.plateNumber)}
+        >
           edit
         </Button>
       ),
@@ -82,15 +91,28 @@ export default function data(cars, deleteCar, showViolations) {
     "car plate": (
       <MDButton
         component="a"
-        href="https://www.creative-tim.com/product/material-dashboard-pro-react"
-        target="_blank"
         rel="noreferrer"
         variant="gradient"
         color="info"
         fullWidth
+        onClick={openDialog}
       >
         add car
       </MDButton>
+    ),
+    "show violations": (
+      <Button
+        component="a"
+        variant="caption"
+        className={showAllViolations ? "shown-violations" : "show-violations"}
+        fontWeight="medium"
+        onClick={() => {
+          if (showAllViolations) return;
+          showViolations(undefined);
+        }}
+      >
+        {showAllViolations ? "Violations Shown..." : "Show violations"}
+      </Button>
     ),
   });
   return {

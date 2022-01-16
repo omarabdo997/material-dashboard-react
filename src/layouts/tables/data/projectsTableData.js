@@ -105,15 +105,27 @@ export default function data(violations, deleteViolation, issueViolation) {
           delete violation
         </Button>
       ),
+      id: (
+        <MDTypography component="a" href="#" variant="button" color="text" fontWeight="medium">
+          {violation.id}
+        </MDTypography>
+      ),
+      "captured by": (
+        <MDTypography component="a" href="#" variant="button" color="text" fontWeight="medium">
+          {violation.issuer}
+        </MDTypography>
+      ),
     });
   }
 
   return {
     columns: [
+      { Header: "id", accessor: "id", align: "left" },
       { Header: "type", accessor: "type", align: "left" },
       { Header: "image", accessor: "image", align: "center" },
       { Header: "max speed", accessor: "max speed", align: "center" },
       { Header: "speed", accessor: "speed", align: "center" },
+      { Header: "captured by", accessor: "captured by", align: "center" },
       { Header: "issue violation", accessor: "issue violation", align: "center" },
       { Header: "delete violation", accessor: "delete violation", align: "center" },
     ],
