@@ -103,8 +103,8 @@ const callGet = async (url) => {
   }
 };
 
-export const getAllCarsApi = async (page = 1) => {
-  const url = endPoint + `/api/cars?page=${page}`;
+export const getAllCarsApi = async (page = 1, search = "") => {
+  const url = endPoint + `/api/cars?page=${page}&search=${search}`;
   return await callGet(url);
 };
 

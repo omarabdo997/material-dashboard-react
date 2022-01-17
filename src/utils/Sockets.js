@@ -19,7 +19,7 @@ socket.on("connect", () => {
 //         cb()
 //     })
 // }
-export const alertsListener = (cb) => {
+export const carListener = (cb) => {
   socket.on("car", (car) => {
     cb(car);
   });

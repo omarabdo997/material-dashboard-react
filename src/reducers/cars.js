@@ -1,4 +1,12 @@
-import { ADD_CAR, RECIEVE_CARS, EDIT_CAR, DELETE_CAR, SHOW_VIOLATIONS } from "../actions/cars";
+import {
+  ADD_CAR,
+  RECIEVE_CARS,
+  EDIT_CAR,
+  DELETE_CAR,
+  SHOW_VIOLATIONS,
+  SET_TRACKED,
+  UPDATE_COORD,
+} from "../actions/cars";
 import _ from "lodash";
 
 const randomHex = () => {
@@ -16,6 +24,7 @@ const cars = (
     totalCount: 0,
     currentPage: 1,
     currentShownPlate: undefined,
+    currentSearch: "",
   },
   action
 ) => {
@@ -32,7 +41,7 @@ const cars = (
         totalCount: state.totalCount + 1,
       };
     case RECIEVE_CARS: {
-      const { cars, totalCount, page } = action;
+      const { cars, totalCount, page, search } = action;
       let i = 0;
       for (let car of cars) {
         if (i === 0) {
@@ -51,6 +60,7 @@ const cars = (
         cars: cars,
         totalCount,
         currentPage: page,
+        currentSearch: search,
       };
     }
     case DELETE_CAR: {
@@ -89,6 +99,36 @@ const cars = (
       return {
         ...state,
         currentShownPlate: plateNumber,
+        cars: updatedCars,
+      };
+    }
+    case SET_TRACKED: {
+      const { plateNumber } = action;
+      const updatedCars = _.cloneDeep(state.cars);
+      for (let oldCar of updatedCars) {
+        if (oldCar.plateNumber === plateNumber) {
+          oldCar.isTracked = !oldCar.isTracked;
+        } else {
+          oldCar.isTracked = false;
+        }
+      }
+      return {
+        ...state,
+        cars: updatedCars,
+      };
+    }
+    case UPDATE_COORD: {
+      const { car } = action;
+      const updatedCars = _.cloneDeep(state.cars);
+      for (let oldCar of updatedCars) {
+        if (oldCar.plateNumber === car.plateNumber) {
+          oldCar.lastLat = car.lastLat;
+          oldCar.lastLng = car.lastLng;
+          oldCar.updateCoordTime = car.updateCoordTime;
+        }
+      }
+      return {
+        ...state,
         cars: updatedCars,
       };
     }

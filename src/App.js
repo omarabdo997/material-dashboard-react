@@ -17,7 +17,12 @@ import { useState, useEffect, useMemo } from "react";
 
 // react-router components
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { handleRecieveCars, handleRecieveViolations, handleAddViolation } from "./actions";
+import {
+  handleRecieveCars,
+  handleRecieveViolations,
+  handleAddViolation,
+  handleUpdateCoord,
+} from "./actions";
 
 import Dashboard from "layouts/dashboard";
 
@@ -62,7 +67,7 @@ import brandDark from "assets/images/logo-ct-dark.png";
 
 import { connect } from "react-redux";
 
-import { violationsListener } from "./utils/Sockets";
+import { violationsListener, carListener } from "./utils/Sockets";
 
 function App(props) {
   const { violations, cars } = props;
@@ -100,6 +105,10 @@ function App(props) {
     openViolationSB();
   };
 
+  const onCarUpdate = (car) => {
+    props.dispatch(handleUpdateCoord(car));
+  };
+
   useEffect(() => {
     console.log("in effect");
     props.dispatch(handleRecieveCars(cars.currentPage));
@@ -111,6 +120,7 @@ function App(props) {
       )
     );
     violationsListener(onViolation);
+    carListener(onCarUpdate);
   }, []);
 
   const {

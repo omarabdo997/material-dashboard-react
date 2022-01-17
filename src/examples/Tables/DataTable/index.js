@@ -51,6 +51,8 @@ function DataTable({
   recieveData,
   changeType,
   currentType,
+  currentSearch,
+  searchFunctionality,
   noEndBorder,
 }) {
   const defaultValue = entriesPerPage.defaultValue ? entriesPerPage.defaultValue : "All";
@@ -134,7 +136,7 @@ function DataTable({
   const handleInputPaginationValue = ({ target: value }) => gotoPage(Number(value.value - 1));
 
   // Search input value state
-  const [search, setSearch] = useState(globalFilter);
+  const [search, setSearch] = useState(currentSearch);
 
   // Search input state handle
   const onSearchChange = useAsyncDebounce((value) => {
@@ -169,6 +171,8 @@ function DataTable({
   } else {
     entriesEnd = pageSize * (pageIndex + 1);
   }
+  console.log("varient", pagination.variant);
+  console.log("color", pagination.color);
 
   return (
     <TableContainer sx={{ boxShadow: "none" }}>
@@ -203,8 +207,12 @@ function DataTable({
                 size="small"
                 fullWidth
                 onChange={({ currentTarget }) => {
-                  setSearch(search);
-                  onSearchChange(currentTarget.value);
+                  setSearch(currentTarget.value);
+                  const valueNow = currentTarget.value;
+                  setTimeout(() => {
+                    console.log("test search", currentTarget.value, valueNow);
+                    if (currentTarget.value === valueNow) searchFunctionality(currentTarget.value);
+                  }, 1000);
                 }}
               />
             </MDBox>

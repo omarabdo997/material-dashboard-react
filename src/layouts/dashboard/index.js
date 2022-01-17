@@ -28,15 +28,15 @@ import GoogleMapReact from "google-map-react";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 // import Footer from "examples/Footer";
-// import ReportsBarChart from "examples/Charts/BarCharts/ReportsBarChart";
-// import ReportsLineChart from "examples/Charts/LineCharts/ReportsLineChart";
+import ReportsBarChart from "examples/Charts/BarCharts/ReportsBarChart";
+import ReportsLineChart from "examples/Charts/LineCharts/ReportsLineChart";
 import ComplexStatisticsCard from "examples/Cards/StatisticsCards/ComplexStatisticsCard";
 
 import DirectionsCarFilledIcon from "@mui/icons-material/DirectionsCarFilled";
 
 // Data
-// import reportsBarChartData from "layouts/dashboard/data/reportsBarChartData";
-// import reportsLineChartData from "layouts/dashboard/data/reportsLineChartData";
+import reportsBarChartData from "layouts/dashboard/data/reportsBarChartData";
+import reportsLineChartData from "layouts/dashboard/data/reportsLineChartData";
 
 // Dashboard components
 // import Projects from "layouts/dashboard/components/Projects";
@@ -47,7 +47,7 @@ import CarsOverview from "layouts/dashboard/components/CarsOverview";
 function Dashboard(props) {
   const { cars } = props;
   console.log("from dashboard", cars);
-  // const { sales, tasks } = reportsLineChartData;
+  const { sales, tasks } = reportsLineChartData;
   const [center, setCenter] = useState({
     lat: 30.033333,
     lng: 31.233334,
@@ -57,10 +57,12 @@ function Dashboard(props) {
 
   for (const car of cars.cars) {
     if (car.isTracked === true && (center.lat !== car.lastLat || center.lng !== car.lastLng)) {
-      setCenter({
-        lat: car.lastLat,
-        lng: car.lastLng,
-      });
+      if (car.lastLat && car.lastLng) {
+        setCenter({
+          lat: car.lastLat,
+          lng: car.lastLng,
+        });
+      }
 
       break;
     }
@@ -94,7 +96,7 @@ function Dashboard(props) {
               </div>
             </Grid>
             <Grid item xs={12} md={6} lg={4}>
-              {/* <CarsOverview cars={cars} setCars={setCars} /> */}
+              <CarsOverview />
             </Grid>
           </Grid>
         </MDBox>
@@ -130,7 +132,7 @@ function Dashboard(props) {
             </MDBox>
           </Grid>
         </Grid>
-        {/* <MDBox mt={4.5}>
+        <MDBox mt={4.5}>
           <Grid container spacing={3}>
             <Grid item xs={12} md={6} lg={4}>
               <MDBox mb={3}>
@@ -170,7 +172,7 @@ function Dashboard(props) {
               </MDBox>
             </Grid>
           </Grid>
-        </MDBox> */}
+        </MDBox>
       </MDBox>
       {/* <Footer /> */}
     </DashboardLayout>

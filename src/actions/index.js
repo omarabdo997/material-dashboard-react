@@ -2,7 +2,15 @@ import { setLoading } from "./loading";
 import { authUser, unauthUser } from "./authedUser";
 import { recieveUsers, addUserQuestion, answerUserQuestion, addUser } from "./users";
 import { addQuestion } from "./questions";
-import { addCar, recieveCars, deleteCar, editCar, showViolations } from "./cars";
+import {
+  addCar,
+  recieveCars,
+  deleteCar,
+  editCar,
+  showViolations,
+  setTracked,
+  updateCoord,
+} from "./cars";
 import { recieveViolations, deleteViolation, issueViolation, addViolation } from "./violations";
 import { recieveQuestions, removeQuestions, answerQuestion } from "./questions";
 import { addMssg } from "./messages";
@@ -31,13 +39,13 @@ export const handleAddCar = (car) => {
     }
   };
 };
-export const handleRecieveCars = (page) => {
+export const handleRecieveCars = (page, search = "") => {
   return async (dispatch) => {
     console.log("in dispatch");
-    const res = await getAllCarsApi(page);
+    const res = await getAllCarsApi(page, search);
     if (res.success === true) {
       console.log("cars are", res);
-      dispatch(recieveCars(res.cars, res.totalCount, page));
+      dispatch(recieveCars(res.cars, res.totalCount, page, search));
     } else {
       dispatch(
         addMssg({
@@ -52,9 +60,9 @@ export const handleDeleteCar = (plateNumber) => {
   return async (dispatch, getState) => {
     const res = await deleteCarAPI(plateNumber);
     if (res.success === true) {
-      const { currentPage } = getState().cars;
+      const { currentPage, currentSearch } = getState().cars;
       console.log("current page is", currentPage);
-      const res2 = await getAllCarsApi(currentPage);
+      const res2 = await getAllCarsApi(currentPage, currentSearch);
       dispatch(deleteCar(res2.cars, res2.totalCount));
     } else {
       dispatch(
@@ -86,6 +94,18 @@ export const handleUpdateCar = (car, plateNumber) => {
 export const handleShowViolations = (plateNumber) => {
   return (dispatch) => {
     dispatch(showViolations(plateNumber));
+  };
+};
+
+export const handleSetTracked = (plateNumber) => {
+  return (dispatch) => {
+    dispatch(setTracked(plateNumber));
+  };
+};
+
+export const handleUpdateCoord = (car) => {
+  return (dispatch) => {
+    dispatch(updateCoord(car));
   };
 };
 

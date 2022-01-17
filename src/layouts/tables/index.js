@@ -74,6 +74,10 @@ function Tables(props) {
   const recieveCars = (page) => {
     props.dispatch(handleRecieveCars(page));
   };
+
+  const searchCars = (search) => {
+    props.dispatch(handleRecieveCars(1, search));
+  };
   const recieveViolations = (page, type, plateNumber) => {
     props.dispatch(handleRecieveViolations(page, type, plateNumber));
   };
@@ -158,12 +162,15 @@ function Tables(props) {
                   table={{ columns, rows }}
                   isSorted={false}
                   canSearch={false}
+                  currentSearch={cars.currentSearch}
                   pageCount={Math.floor((props.cars.totalCount - 1) / 10) + 1}
                   pageNumber={cars.currentPage}
                   showTotalEntries={true}
                   entriesPerPage={false}
                   showTotalEntries={false}
                   recieveData={recieveCars}
+                  searchFunctionality={searchCars}
+                  canSearch
                   noEndBorder
                 />
               </MDBox>
