@@ -22,6 +22,8 @@ import {
   handleRecieveViolations,
   handleAddViolation,
   handleUpdateCoord,
+  handleRecieveViolationsCount,
+  handleRecieveAnalytics,
 } from "./actions";
 
 import Dashboard from "layouts/dashboard";
@@ -112,6 +114,8 @@ function App(props) {
   useEffect(() => {
     console.log("in effect");
     props.dispatch(handleRecieveCars(cars.currentPage));
+    props.dispatch(handleRecieveViolationsCount());
+    props.dispatch(handleRecieveAnalytics());
     props.dispatch(
       handleRecieveViolations(
         violations.currentPage,
@@ -271,7 +275,7 @@ function App(props) {
   );
 }
 
-const stateToProps = ({ cars, violations }) => {
-  return { cars, violations };
+const stateToProps = ({ cars, violations, analytics }) => {
+  return { cars, violations, analytics };
 };
 export default connect(stateToProps)(App);

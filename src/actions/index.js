@@ -11,8 +11,15 @@ import {
   setTracked,
   updateCoord,
 } from "./cars";
-import { recieveViolations, deleteViolation, issueViolation, addViolation } from "./violations";
-import { recieveQuestions, removeQuestions, answerQuestion } from "./questions";
+import {
+  recieveViolations,
+  deleteViolation,
+  issueViolation,
+  addViolation,
+  RECIEVE_VIOLATIONS_COUNTS,
+  recieveViolationsCounts,
+} from "./violations";
+import { recieveAnalytics } from "./analytics";
 import { addMssg } from "./messages";
 import {
   addCarAPI,
@@ -22,6 +29,7 @@ import {
   getViolationsAPI,
   deleteViolationAPI,
   issueViolationAPI,
+  getAnalyticsAPI,
 } from "../utils/API";
 
 export const handleAddCar = (car) => {
@@ -46,6 +54,23 @@ export const handleRecieveCars = (page, search = "") => {
     if (res.success === true) {
       console.log("cars are", res);
       dispatch(recieveCars(res.cars, res.totalCount, page, search));
+    } else {
+      dispatch(
+        addMssg({
+          errorMessage: res?.message || "unkown",
+        })
+      );
+    }
+  };
+};
+
+export const handleRecieveAnalytics = (from = undefined, to = undefined) => {
+  return async (dispatch) => {
+    console.log("in dispatch");
+    const res = await getAnalyticsAPI(from, to);
+    if (res.success === true) {
+      console.log("analytics are", res);
+      dispatch(recieveAnalytics(res.analyticsAvg, res.analyticsCount, res.from, res.to));
     } else {
       dispatch(
         addMssg({
@@ -125,6 +150,29 @@ export const handleRecieveViolations = (page, type = undefined, plateNumber = un
     }
   };
 };
+
+export const handleRecieveViolationsCount = () => {
+  return async (dispatch) => {
+    const res1 = await getViolationsAPI(1);
+    const res2 = await getViolationsAPI(1, 1);
+    const res3 = await getViolationsAPI(1, 3);
+
+    if (res1.success === true && res2.success === true && res3.success === true) {
+      const violationsCounts = {
+        totalViolations: res1.totalCount,
+        totalSpeedViolations: res2.totalCount,
+        totalDistractedViolations: res3.totalCount,
+      };
+      dispatch(recieveViolationsCounts(violationsCounts));
+    } else {
+      dispatch(
+        addMssg({
+          errorMessage: res?.message || "unkown",
+        })
+      );
+    }
+  };
+};
 export const handleAddViolation = (violation) => {
   return (dispatch) => {
     console.log("in add violation");
@@ -135,10 +183,13 @@ export const handleAddViolation = (violation) => {
 export const handleDeleteViolation = (id) => {
   return async (dispatch, getState) => {
     const res = await deleteViolationAPI(id);
+    const violation = getState().violations.violations.filter(
+      (violation) => violation.id === id
+    )[0];
     if (res.success === true) {
       const { currentPage, currentType, currentPlateNumber } = getState().violations;
       const res2 = await getViolationsAPI(currentPage, currentType, currentPlateNumber);
-      dispatch(deleteViolation(res2.violations, res2.totalCount));
+      dispatch(deleteViolation(res2.violations, res2.totalCount, violation));
     } else {
       dispatch(
         addMssg({

@@ -120,6 +120,21 @@ export const getViolationsAPI = async (page = 1, type = undefined, plateNumber =
   return await callGet(url);
 };
 
+export const getAnalyticsAPI = async (from = undefined, to = undefined) => {
+  console.log("from is", from);
+  let url;
+  if (from !== undefined) {
+    if (to === undefined) url = endPoint + `/api/analytics?from=${from}`;
+    else url = endPoint + `/api/analytics?from=${from}&to=${to}`;
+  } else if (to !== undefined) {
+    url = endPoint + `/api/analytics?to=${to}`;
+  } else {
+    url = endPoint + `/api/analytics`;
+  }
+  console.log("called url is", url);
+  return await callGet(url);
+};
+
 export const deleteViolationAPI = async (id) => {
   // const token = localStorage.getItem("token");
   // const bearerToken = `Bearer ${token}`;

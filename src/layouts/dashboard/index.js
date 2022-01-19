@@ -18,6 +18,8 @@ import { useState } from "react";
 // @mui material components
 import Grid from "@mui/material/Grid";
 
+import { handleRecieveAnalytics } from "../../actions";
+
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 
@@ -34,9 +36,14 @@ import ComplexStatisticsCard from "examples/Cards/StatisticsCards/ComplexStatist
 
 import DirectionsCarFilledIcon from "@mui/icons-material/DirectionsCarFilled";
 
+import AdapterDateFns from "@mui/lab/AdapterDateFns";
+import LocalizationProvider from "@mui/lab/LocalizationProvider";
+import TextField from "@mui/material/TextField";
+
+import DesktopDatePicker from "@mui/lab/DesktopDatePicker";
+
 // Data
-import reportsBarChartData from "layouts/dashboard/data/reportsBarChartData";
-import reportsLineChartData from "layouts/dashboard/data/reportsLineChartData";
+import reportsChartData from "layouts/dashboard/data/reportsChartData";
 
 // Dashboard components
 // import Projects from "layouts/dashboard/components/Projects";
@@ -45,9 +52,8 @@ import { connect } from "react-redux";
 import CarsOverview from "layouts/dashboard/components/CarsOverview";
 
 function Dashboard(props) {
-  const { cars } = props;
+  const { cars, violations, analytics } = props;
   console.log("from dashboard", cars);
-  const { sales, tasks } = reportsLineChartData;
   const [center, setCenter] = useState({
     lat: 30.033333,
     lng: 31.233334,
@@ -67,6 +73,16 @@ function Dashboard(props) {
       break;
     }
   }
+  const handleChangeFrom = (value) => {
+    value.setUTCHours(0, 0, 0, 0);
+    console.log("datae is ", new Date(value).toJSON(), JSON.stringify(value));
+    props.dispatch(handleRecieveAnalytics(value.toJSON(), analytics.to));
+  };
+
+  const handleChangeTo = (value) => {
+    value.setUTCHours(0, 0, 0, 0);
+    props.dispatch(handleRecieveAnalytics(analytics.from, value.toJSON()));
+  };
 
   return (
     <DashboardLayout>
@@ -107,7 +123,7 @@ function Dashboard(props) {
                 color="error"
                 icon="dangerous"
                 title="All Violations"
-                count={281}
+                count={violations.totalViolations}
               />
             </MDBox>
           </Grid>
@@ -117,7 +133,7 @@ function Dashboard(props) {
                 color="error"
                 icon="speed"
                 title="Speed Violations"
-                count="2,300"
+                count={violations.totalSpeedViolations}
               />
             </MDBox>
           </Grid>
@@ -127,47 +143,95 @@ function Dashboard(props) {
                 color="error"
                 icon="phone_disabled"
                 title="Distarcted Driver Violations"
-                count="34,000"
+                count={violations.totalDistractedViolations}
               />
             </MDBox>
           </Grid>
         </Grid>
         <MDBox mt={4.5}>
+          <Grid container spacing={1}>
+            <Grid item xs={2} md={2} lg={2}>
+              <MDBox mb={3}>
+                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                  <DesktopDatePicker
+                    label="From"
+                    inputFormat="MM/dd/yyyy"
+                    color="warning"
+                    value={analytics.from}
+                    onChange={handleChangeFrom}
+                    renderInput={(params) => {
+                      console.log("the params are", params);
+                      params.inputProps.readOnly = true;
+                      return <TextField {...params} value="12/10/1997" />;
+                    }}
+                  />
+                </LocalizationProvider>
+              </MDBox>
+            </Grid>
+
+            <Grid item xs={2} md={2} lg={2}>
+              <MDBox mb={3}>
+                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                  <DesktopDatePicker
+                    label="To"
+                    inputFormat="MM/dd/yyyy"
+                    color="primary"
+                    value={analytics.to}
+                    onChange={handleChangeTo}
+                    renderInput={(params) => {
+                      console.log("the params are", params);
+                      params.inputProps.readOnly = true;
+                      return <TextField {...params} value="12/10/1997" />;
+                    }}
+                  />
+                </LocalizationProvider>
+              </MDBox>
+            </Grid>
+          </Grid>
+        </MDBox>
+        <MDBox mt={4.5}>
           <Grid container spacing={3}>
-            <Grid item xs={12} md={6} lg={4}>
+            <Grid item xs={12} md={8} lg={6}>
               <MDBox mb={3}>
                 <ReportsBarChart
-                  color="info"
-                  title="website views"
-                  description="Last Campaign Performance"
-                  date="campaign sent 2 days ago"
-                  chart={reportsBarChartData}
+                  color="error"
+                  title="All Violations Count By Day"
+                  description=""
+                  // date=""
+                  chart={reportsChartData(analytics.analyticsCount).days}
                 />
               </MDBox>
             </Grid>
-            <Grid item xs={12} md={6} lg={4}>
+            <Grid item xs={12} md={8} lg={6}>
+              <MDBox mb={3}>
+                <ReportsBarChart
+                  color="error"
+                  title="All Violations Count By Month"
+                  description=""
+                  date="updated 4 mins ago"
+                  chart={reportsChartData(analytics.analyticsCount).months}
+                />
+              </MDBox>
+            </Grid>
+            <Grid item xs={12} md={8} lg={6}>
               <MDBox mb={3}>
                 <ReportsLineChart
-                  color="success"
-                  title="daily sales"
-                  description={
-                    <>
-                      (<strong>+15%</strong>) increase in today sales.
-                    </>
-                  }
+                  color="error"
+                  title="daily violations"
+                  description=""
                   date="updated 4 min ago"
-                  chart={sales}
+                  chart={reportsChartData(analytics.analyticsAvg).days}
                 />
               </MDBox>
             </Grid>
-            <Grid item xs={12} md={6} lg={4}>
+            <Grid item xs={12} md={8} lg={6}>
               <MDBox mb={3}>
                 <ReportsLineChart
-                  color="dark"
-                  title="completed tasks"
-                  description="Last Campaign Performance"
+                  color="error"
+                  title="Monthly violations"
+                  description=""
                   date="just updated"
-                  chart={tasks}
+                  chart={reportsChartData(analytics.analyticsAvg).months}
                 />
               </MDBox>
             </Grid>
@@ -178,7 +242,7 @@ function Dashboard(props) {
     </DashboardLayout>
   );
 }
-const stateToProps = ({ cars, violations }) => {
-  return { cars, violations };
+const stateToProps = ({ cars, violations, analytics }) => {
+  return { cars, violations, analytics };
 };
 export default connect(stateToProps)(Dashboard);

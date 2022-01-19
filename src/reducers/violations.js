@@ -3,6 +3,7 @@ import {
   RECIEVE_VIOLATIONS,
   ISSUE_VIOLATION,
   ADD_VIOLATION,
+  RECIEVE_VIOLATIONS_COUNTS,
 } from "../actions/violations";
 import _ from "lodash";
 
@@ -13,6 +14,9 @@ const violations = (
     currentType: undefined,
     currentPlateNumber: undefined,
     currentPage: 1,
+    totalViolations: 0,
+    totalSpeedViolations: 0,
+    totalDistractedViolations: 0,
   },
   action
 ) => {
@@ -30,7 +34,15 @@ const violations = (
     }
     case ADD_VIOLATION: {
       const { violation } = action;
-
+      let newTotalViolations = state.totalViolations + 1;
+      let newTotalSpeedViolations = state.totalSpeedViolations;
+      let newTotalDistractedViolations = state.totalDistractedViolations;
+      if (violation.type === 1) {
+        newTotalSpeedViolations = newTotalSpeedViolations + 1;
+      }
+      if (violation.type === 3) {
+        newTotalDistractedViolations = newTotalDistractedViolations + 1;
+      }
       if (
         state.currentPage === 1 &&
         (state.currentType === undefined || state.currentType === violation.type) &&
@@ -43,19 +55,47 @@ const violations = (
           ...state,
           violations,
           totalCount: state.totalCount + 1,
+          totalViolations: newTotalViolations,
+          totalSpeedViolations: newTotalSpeedViolations,
+          totalDistractedViolations: newTotalDistractedViolations,
         };
       }
       return {
         ...state,
         totalCount: state.totalCount + 1,
+        totalViolations: newTotalViolations,
+        totalSpeedViolations: newTotalSpeedViolations,
+        totalDistractedViolations: newTotalDistractedViolations,
       };
     }
     case DELETE_VIOLATION: {
-      const { violations, totalCount } = action;
+      const { violations, totalCount, violation } = action;
+      let newTotalViolations = state.totalViolations - 1;
+      let newTotalSpeedViolations = state.totalSpeedViolations;
+      let newTotalDistractedViolations = state.totalDistractedViolations;
+      if (violation.type === 1) {
+        newTotalSpeedViolations = newTotalSpeedViolations - 1;
+      }
+      if (violation.type === 3) {
+        newTotalDistractedViolations = newTotalDistractedViolations - 1;
+      }
+      // if ()
       return {
         ...state,
         violations,
         totalCount,
+        totalViolations: newTotalViolations,
+        totalSpeedViolations: newTotalSpeedViolations,
+        totalDistractedViolations: newTotalDistractedViolations,
+      };
+    }
+    case RECIEVE_VIOLATIONS_COUNTS: {
+      const { violationsCounts } = action;
+      return {
+        ...state,
+        totalViolations: violationsCounts.totalViolations,
+        totalSpeedViolations: violationsCounts.totalSpeedViolations,
+        totalDistractedViolations: violationsCounts.totalDistractedViolations,
       };
     }
     case ISSUE_VIOLATION: {
