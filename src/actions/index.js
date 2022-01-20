@@ -35,12 +35,12 @@ import {
 export const handleAddCar = (car) => {
   return async (dispatch) => {
     const res = await addCarAPI(car);
-    if (res.success === true) {
+    if (res?.success === true) {
       dispatch(addCar(res.car));
     } else {
       dispatch(
         addMssg({
-          errorMessage: res?.message || "unkown",
+          errorMessage: res?.message || "Something went wrong!",
           validators: res?.validators || undefined,
         })
       );
@@ -51,13 +51,13 @@ export const handleRecieveCars = (page, search = "") => {
   return async (dispatch) => {
     console.log("in dispatch");
     const res = await getAllCarsApi(page, search);
-    if (res.success === true) {
+    if (res?.success === true) {
       console.log("cars are", res);
       dispatch(recieveCars(res.cars, res.totalCount, page, search));
     } else {
       dispatch(
         addMssg({
-          errorMessage: res?.message || "unkown",
+          errorMessage: res?.message || "Something went wrong!",
         })
       );
     }
@@ -68,13 +68,13 @@ export const handleRecieveAnalytics = (from = undefined, to = undefined) => {
   return async (dispatch) => {
     console.log("in dispatch");
     const res = await getAnalyticsAPI(from, to);
-    if (res.success === true) {
+    if (res?.success === true) {
       console.log("analytics are", res);
       dispatch(recieveAnalytics(res.analyticsAvg, res.analyticsCount, res.from, res.to));
     } else {
       dispatch(
         addMssg({
-          errorMessage: res?.message || "unkown",
+          errorMessage: res?.message || "Something went wrong!",
         })
       );
     }
@@ -84,7 +84,7 @@ export const handleRecieveAnalytics = (from = undefined, to = undefined) => {
 export const handleDeleteCar = (plateNumber) => {
   return async (dispatch, getState) => {
     const res = await deleteCarAPI(plateNumber);
-    if (res.success === true) {
+    if (res?.success === true) {
       const { currentPage, currentSearch } = getState().cars;
       console.log("current page is", currentPage);
       const res2 = await getAllCarsApi(currentPage, currentSearch);
@@ -92,7 +92,7 @@ export const handleDeleteCar = (plateNumber) => {
     } else {
       dispatch(
         addMssg({
-          errorMessage: res?.message || "unkown",
+          errorMessage: res?.message || "Something went wrong!",
           validators: res?.validators || undefined,
         })
       );
@@ -103,12 +103,12 @@ export const handleDeleteCar = (plateNumber) => {
 export const handleUpdateCar = (car, plateNumber) => {
   return async (dispatch) => {
     const res = await updateCarAPI(car, plateNumber);
-    if (res.success === true) {
+    if (res?.success === true) {
       dispatch(editCar(res.car, plateNumber));
     } else {
       dispatch(
         addMssg({
-          errorMessage: res?.message || "unkown",
+          errorMessage: res?.message || "Something went wrong!",
           validators: res?.validators || undefined,
         })
       );
@@ -138,13 +138,13 @@ export const handleRecieveViolations = (page, type = undefined, plateNumber = un
   return async (dispatch) => {
     console.log("in dispatch violations");
     const res = await getViolationsAPI(page, type, plateNumber);
-    if (res.success === true) {
+    if (res?.success === true) {
       console.log("violations are", res.violations);
       dispatch(recieveViolations(res.violations, res.totalCount, page, type, plateNumber));
     } else {
       dispatch(
         addMssg({
-          errorMessage: res?.message || "unkown",
+          errorMessage: res?.message || "Something went wrong!",
         })
       );
     }
@@ -157,7 +157,7 @@ export const handleRecieveViolationsCount = () => {
     const res2 = await getViolationsAPI(1, 1);
     const res3 = await getViolationsAPI(1, 3);
 
-    if (res1.success === true && res2.success === true && res3.success === true) {
+    if (res1?.success === true && res2?.success === true && res3?.success === true) {
       const violationsCounts = {
         totalViolations: res1.totalCount,
         totalSpeedViolations: res2.totalCount,
@@ -167,7 +167,7 @@ export const handleRecieveViolationsCount = () => {
     } else {
       dispatch(
         addMssg({
-          errorMessage: res?.message || "unkown",
+          errorMessage: res1?.message || "Something went wrong!",
         })
       );
     }
@@ -186,14 +186,14 @@ export const handleDeleteViolation = (id) => {
     const violation = getState().violations.violations.filter(
       (violation) => violation.id === id
     )[0];
-    if (res.success === true) {
+    if (res?.success === true) {
       const { currentPage, currentType, currentPlateNumber } = getState().violations;
       const res2 = await getViolationsAPI(currentPage, currentType, currentPlateNumber);
       dispatch(deleteViolation(res2.violations, res2.totalCount, violation));
     } else {
       dispatch(
         addMssg({
-          errorMessage: res?.message || "unkown",
+          errorMessage: res?.message || "Something went wrong!",
           validators: res?.validators || undefined,
         })
       );
@@ -204,12 +204,12 @@ export const handleDeleteViolation = (id) => {
 export const handleIssueViolation = (id) => {
   return async (dispatch) => {
     const res = await issueViolationAPI(id);
-    if (res.success === true) {
+    if (res?.success === true) {
       dispatch(issueViolation(res.violation));
     } else {
       dispatch(
         addMssg({
-          errorMessage: res?.message || "unkown",
+          errorMessage: res?.message || "Something went wrong!",
           validators: res?.validators || undefined,
         })
       );

@@ -48,7 +48,7 @@ import authorsTableData from "layouts/tables/data/authorsTableData";
 import projectsTableData from "layouts/tables/data/projectsTableData";
 
 function Tables(props) {
-  const { violations, cars } = props;
+  const { violations, cars, messages } = props;
   const [addCarDialogOpen, setAddCarDialogOpen] = useState(false);
   const [editCarDialogOpen, setEditCarDialogOpen] = useState("");
 
@@ -60,7 +60,7 @@ function Tables(props) {
     setEditCarDialogOpen(plateNumber);
   };
 
-  const addCar = (car) => {
+  const addCar = async (car) => {
     props.dispatch(handleAddCar(car));
     setAddCarDialogOpen(false);
   };
@@ -215,7 +215,7 @@ function Tables(props) {
     </DashboardLayout>
   );
 }
-const stateToProps = ({ cars, violations }) => {
-  return { cars, violations };
+const stateToProps = ({ cars, violations, messages }) => {
+  return { cars, violations, messages };
 };
 export default connect(stateToProps)(Tables);

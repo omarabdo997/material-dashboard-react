@@ -28,6 +28,8 @@ import {
 
 import Dashboard from "layouts/dashboard";
 
+import ErrorDialog from "./examples/Modals/ErroDialog";
+
 // @mui material components
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -271,6 +273,7 @@ function App(props) {
         <Route path="*" element={<Navigate to="/dashboard" />} />
       </Routes>
       {renderViolationSB}
+      <ErrorDialog />
     </ThemeProvider>
   );
 }
