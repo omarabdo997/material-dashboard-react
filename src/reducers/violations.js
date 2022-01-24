@@ -49,7 +49,7 @@ const violations = (
         (state.currentPlateNumber === undefined || state.currentPlateNumber === violation.issuer)
       ) {
         const violations = _.cloneDeep(state.violations);
-        violations.pop();
+        if (violations.length >= 10) violations.pop();
         violations.unshift(violation);
         return {
           ...state,

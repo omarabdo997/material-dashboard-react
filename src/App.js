@@ -56,7 +56,7 @@ import { CacheProvider } from "@emotion/react";
 import createCache from "@emotion/cache";
 
 // Material Dashboard 2 React routes
-import routes from "routes";
+import routes, { AuthRoute, UnauthRoute } from "routes";
 
 // Material Dashboard 2 React contexts
 import { useMaterialUIController, setMiniSidenav, setOpenConfigurator } from "context";
@@ -71,10 +71,22 @@ import brandDark from "assets/images/logo-ct-dark.png";
 
 import { connect } from "react-redux";
 
-import { violationsListener, carListener } from "./utils/Sockets";
+import { useNavigate } from "react-router-dom";
+
+import { violationsListener, carListener, disconnectListener, changeToken } from "./utils/Sockets";
+
+import { getUserData, signOut } from "./utils/helpers";
 
 function App(props) {
+  const navigate = useNavigate();
   const { violations, cars } = props;
+  const user = getUserData();
+  const filteredRouts = routes.filter((route) => {
+    if (!route.levels && !route.unauth) return true;
+    else if (user?.level && route?.levels?.includes(user.level)) return true;
+    else if (!user && route.unauth) return true;
+    else return false;
+  });
   const [controller, dispatch] = useMaterialUIController();
   const [violationSB, setViolationSB] = useState(false);
   const [violation, setViolation] = useState({});
@@ -113,6 +125,12 @@ function App(props) {
     props.dispatch(handleUpdateCoord(car));
   };
 
+  const tokenExpire = () => {
+    signOut();
+    changeToken();
+    navigate("/sign-in");
+  };
+
   useEffect(() => {
     console.log("in effect");
     props.dispatch(handleRecieveCars(cars.currentPage));
@@ -127,6 +145,7 @@ function App(props) {
     );
     violationsListener(onViolation);
     carListener(onCarUpdate);
+    disconnectListener(tokenExpire);
   }, []);
 
   const {
@@ -185,13 +204,23 @@ function App(props) {
 
   const getRoutes = (allRoutes) =>
     allRoutes.map((route) => {
+      console.log("route is", route);
       if (route.collapse) {
         return getRoutes(route.collapse);
       }
-
-      if (route.route === "/dashboard") {
+      if (route.levels && route.route) {
         return (
-          <Route exact path={route.route} element={<Dashboard cars={cars} />} key={route.key} />
+          <Route exact path={route.route} element={<AuthRoute levels={route.levels} />}>
+            <Route exact path={route.route} element={route.component} key={route.route} />
+          </Route>
+        );
+      }
+      if (user && route.unauth) {
+        console.log("here omar");
+        return (
+          <Route exact path={route.route} element={<UnauthRoute />}>
+            <Route exact path={route.route} element={route.component} key={route.route} />
+          </Route>
         );
       }
       if (route.route) {
@@ -235,7 +264,7 @@ function App(props) {
               color={sidenavColor}
               brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
               brandName="Material Dashboard 2"
-              routes={routes}
+              routes={filteredRouts}
               onMouseEnter={handleOnMouseEnter}
               onMouseLeave={handleOnMouseLeave}
             />
@@ -246,7 +275,7 @@ function App(props) {
         {layout === "vr" && <Configurator />}
         <Routes>
           {getRoutes(routes)}
-          <Route path="*" element={<Navigate to="/dashboard" />} />
+          <Route path="*" element={<Navigate to={filteredRouts[0].route} />} />
         </Routes>
       </ThemeProvider>
     </CacheProvider>
@@ -259,7 +288,7 @@ function App(props) {
             color={sidenavColor}
             brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
             brandName="Material Dashboard 2"
-            routes={routes}
+            routes={filteredRouts}
             onMouseEnter={handleOnMouseEnter}
             onMouseLeave={handleOnMouseLeave}
           />
@@ -270,7 +299,7 @@ function App(props) {
       {layout === "vr" && <Configurator />}
       <Routes>
         {getRoutes(routes)}
-        <Route path="*" element={<Navigate to="/dashboard" />} />
+        <Route path="*" element={<Navigate to={filteredRouts[0].route} />} />
       </Routes>
       {renderViolationSB}
       <ErrorDialog />

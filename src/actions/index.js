@@ -24,6 +24,7 @@ import { addMssg } from "./messages";
 import {
   addCarAPI,
   getAllCarsApi,
+  getCarApi,
   deleteCarAPI,
   updateCarAPI,
   getViolationsAPI,
@@ -31,6 +32,7 @@ import {
   issueViolationAPI,
   getAnalyticsAPI,
 } from "../utils/API";
+import { getUserData } from "../utils/helpers";
 
 export const handleAddCar = (car) => {
   return async (dispatch) => {
@@ -48,9 +50,25 @@ export const handleAddCar = (car) => {
   };
 };
 export const handleRecieveCars = (page, search = "") => {
+  const user = getUserData();
+  console.log("user is", user);
   return async (dispatch) => {
     console.log("in dispatch");
-    const res = await getAllCarsApi(page, search);
+    if (!user) {
+      return;
+    }
+    let res;
+    if (user.level == 3) {
+      console.log("in user 3");
+      res = await getCarApi(user?.car?.plateNumber);
+      res.cars = res.car ? [res.car] : [];
+      res.totalCount = res.car ? 1 : 0;
+      console.log("user is and car is", user, res.car);
+      res.car && dispatch(showViolations(res.car.plateNumber));
+    } else {
+      res = await getAllCarsApi(page, search);
+    }
+    console.log("res is", res);
     if (res?.success === true) {
       console.log("cars are", res);
       dispatch(recieveCars(res.cars, res.totalCount, page, search));
@@ -65,7 +83,11 @@ export const handleRecieveCars = (page, search = "") => {
 };
 
 export const handleRecieveAnalytics = (from = undefined, to = undefined) => {
+  const user = getUserData();
   return async (dispatch) => {
+    if (!user || user.level >= 3) {
+      return;
+    }
     console.log("in dispatch");
     const res = await getAnalyticsAPI(from, to);
     if (res?.success === true) {
@@ -135,9 +157,23 @@ export const handleUpdateCoord = (car) => {
 };
 
 export const handleRecieveViolations = (page, type = undefined, plateNumber = undefined) => {
+  const user = getUserData();
   return async (dispatch) => {
+    if (!user) {
+      return;
+    }
     console.log("in dispatch violations");
-    const res = await getViolationsAPI(page, type, plateNumber);
+    let res;
+    if (user.level == 3) {
+      if (user?.car) {
+        res = await getViolationsAPI(page, type, user.car.plateNumber);
+        plateNumber = user.car.plateNumber;
+      } else {
+        return;
+      }
+    } else {
+      res = await getViolationsAPI(page, type, plateNumber);
+    }
     if (res?.success === true) {
       console.log("violations are", res.violations);
       dispatch(recieveViolations(res.violations, res.totalCount, page, type, plateNumber));
@@ -152,7 +188,11 @@ export const handleRecieveViolations = (page, type = undefined, plateNumber = un
 };
 
 export const handleRecieveViolationsCount = () => {
+  const user = getUserData();
   return async (dispatch) => {
+    if (!user || user.level >= 3) {
+      return;
+    }
     const res1 = await getViolationsAPI(1);
     const res2 = await getViolationsAPI(1, 1);
     const res3 = await getViolationsAPI(1, 3);

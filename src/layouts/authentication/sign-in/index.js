@@ -38,13 +38,65 @@ import MDButton from "components/MDButton";
 // Authentication layout components
 import BasicLayout from "layouts/authentication/components/BasicLayout";
 
+import { connect } from "react-redux";
+import {
+  handleRecieveCars,
+  handleRecieveViolations,
+  handleRecieveAnalytics,
+  handleRecieveViolationsCount,
+} from "../../../actions";
+
+import { signIn } from "../../../utils/API";
+import { changeToken } from "../../../utils/Sockets";
+
+import { useNavigate } from "react-router-dom";
+
 // Images
 import bgImage from "assets/images/bg-sign-in-basic.jpeg";
+import Typography from "@mui/material/Typography";
 
-function Basic() {
-  const [rememberMe, setRememberMe] = useState(false);
+function Basic(props) {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorMessageEmail, setErrorMessageEmail] = useState("");
+  const [errorMessagePassword, setErrorMessagePassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const handleSetRememberMe = () => setRememberMe(!rememberMe);
+  const setErrorMessages = (message, type = "") => {
+    if (type === "email") {
+      setErrorMessageEmail(message);
+    }
+    if (type === "password") {
+      setErrorMessagePassword(message);
+    }
+    if (type === "") {
+      setErrorMessage(message);
+    }
+  };
+
+  const handleSubmit = async () => {
+    const res = await signIn(email, password);
+    setErrorMessageEmail("");
+    setErrorMessagePassword("");
+    setErrorMessage("");
+    if (res.success) {
+      changeToken();
+      navigate("/");
+      props.dispatch(handleRecieveCars(1));
+      props.dispatch(handleRecieveViolationsCount());
+      props.dispatch(handleRecieveAnalytics());
+      props.dispatch(handleRecieveViolations(1));
+    } else {
+      if (res.validators) {
+        for (let validator of res.validators) {
+          setErrorMessages(validator.msg, validator.param);
+        }
+      } else {
+        setErrorMessages(res.message);
+      }
+    }
+  };
 
   return (
     <BasicLayout image={bgImage}>
@@ -63,63 +115,41 @@ function Basic() {
           <MDTypography variant="h4" fontWeight="medium" color="white" mt={1}>
             Sign in
           </MDTypography>
-          <Grid container spacing={3} justifyContent="center" sx={{ mt: 1, mb: 2 }}>
-            <Grid item xs={2}>
-              <MDTypography component={MuiLink} href="#" variant="body1" color="white">
-                <FacebookIcon color="inherit" />
-              </MDTypography>
-            </Grid>
-            <Grid item xs={2}>
-              <MDTypography component={MuiLink} href="#" variant="body1" color="white">
-                <GitHubIcon color="inherit" />
-              </MDTypography>
-            </Grid>
-            <Grid item xs={2}>
-              <MDTypography component={MuiLink} href="#" variant="body1" color="white">
-                <GoogleIcon color="inherit" />
-              </MDTypography>
-            </Grid>
-          </Grid>
+          <Grid container spacing={3} justifyContent="center" sx={{ mt: 1, mb: 2 }}></Grid>
         </MDBox>
         <MDBox pt={4} pb={3} px={3}>
           <MDBox component="form" role="form">
             <MDBox mb={2}>
-              <MDInput type="email" label="Email" fullWidth />
+              <MDInput
+                type="email"
+                label="Email"
+                fullWidth
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <Typography mt={1} variant="h6" color="error" sx={{ fontWeight: 100 }} component="h2">
+                {errorMessageEmail}
+              </Typography>
             </MDBox>
             <MDBox mb={2}>
-              <MDInput type="password" label="Password" fullWidth />
-            </MDBox>
-            <MDBox display="flex" alignItems="center" ml={-1}>
-              <Switch checked={rememberMe} onChange={handleSetRememberMe} />
-              <MDTypography
-                variant="button"
-                fontWeight="regular"
-                color="text"
-                onClick={handleSetRememberMe}
-                sx={{ cursor: "pointer", userSelect: "none", ml: -1 }}
-              >
-                &nbsp;&nbsp;Remember me
-              </MDTypography>
+              <MDInput
+                type="password"
+                label="Password"
+                fullWidth
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <Typography mt={1} variant="h6" color="error" sx={{ fontWeight: 100 }} component="h2">
+                {errorMessagePassword}
+              </Typography>
             </MDBox>
             <MDBox mt={4} mb={1}>
-              <MDButton variant="gradient" color="info" fullWidth>
+              <MDButton variant="gradient" color="info" fullWidth onClick={handleSubmit}>
                 sign in
               </MDButton>
-            </MDBox>
-            <MDBox mt={3} mb={1} textAlign="center">
-              <MDTypography variant="button" color="text">
-                Don&apos;t have an account?{" "}
-                <MDTypography
-                  component={Link}
-                  to="/authentication/sign-up"
-                  variant="button"
-                  color="info"
-                  fontWeight="medium"
-                  textGradient
-                >
-                  Sign up
-                </MDTypography>
-              </MDTypography>
+              <Typography mt={1} variant="h6" color="error" sx={{ fontWeight: 100 }} component="h2">
+                {errorMessage}
+              </Typography>
             </MDBox>
           </MDBox>
         </MDBox>
@@ -127,5 +157,7 @@ function Basic() {
     </BasicLayout>
   );
 }
-
-export default Basic;
+const stateToProps = ({ cars, violations, analytics }) => {
+  return { cars, violations, analytics };
+};
+export default connect(stateToProps)(Basic);

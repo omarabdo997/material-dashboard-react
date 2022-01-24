@@ -17,6 +17,7 @@ import Button from "@mui/material/Button";
 // import logoInvesion from "assets/images/small-logos/logo-invision.svg";
 import team2 from "assets/images/team-2.jpg";
 import MDButton from "components/MDButton";
+import { getUserData } from "../../../utils/helpers";
 
 import team3 from "assets/images/team-3.jpg";
 import team4 from "assets/images/team-4.jpg";
@@ -24,6 +25,7 @@ import team4 from "assets/images/team-4.jpg";
 import "./index.css";
 
 export default function data(cars, deleteCar, showViolations, openDialog, openEditDialog) {
+  const user = getUserData();
   const Author = ({ image, name, email }) => (
     <MDBox display="flex" alignItems="center" lineHeight={1}>
       <MDAvatar src={image} name={name} size="sm" />
@@ -69,6 +71,7 @@ export default function data(cars, deleteCar, showViolations, openDialog, openEd
           variant="caption"
           color="text"
           fontWeight="medium"
+          disabled={user.level != 1}
           onClick={() => openEditDialog(car.plateNumber)}
         >
           edit
@@ -78,8 +81,9 @@ export default function data(cars, deleteCar, showViolations, openDialog, openEd
         <Button
           component="a"
           variant="caption"
-          className="delete-car"
+          className={user.level == 1 ? "delete-car" : ""}
           fontWeight="medium"
+          disabled={user.level != 1}
           onClick={() => deleteCar(car.plateNumber)}
         >
           Delete
@@ -87,34 +91,36 @@ export default function data(cars, deleteCar, showViolations, openDialog, openEd
       ),
     });
   }
-  rows.push({
-    "car plate": (
-      <MDButton
-        component="a"
-        rel="noreferrer"
-        variant="gradient"
-        color="info"
-        fullWidth
-        onClick={openDialog}
-      >
-        add car
-      </MDButton>
-    ),
-    "show violations": (
-      <Button
-        component="a"
-        variant="caption"
-        className={showAllViolations ? "shown-violations" : "show-violations"}
-        fontWeight="medium"
-        onClick={() => {
-          if (showAllViolations) return;
-          showViolations(undefined);
-        }}
-      >
-        {showAllViolations ? "Violations Shown..." : "Show violations"}
-      </Button>
-    ),
-  });
+  (user.level == 1 || user.level == 2) &&
+    rows.push({
+      "car plate": (
+        <MDButton
+          component="a"
+          rel="noreferrer"
+          variant="gradient"
+          color="info"
+          fullWidth
+          disabled={user.level != 1}
+          onClick={openDialog}
+        >
+          add car
+        </MDButton>
+      ),
+      "show violations": (
+        <Button
+          component="a"
+          variant="caption"
+          className={showAllViolations ? "shown-violations" : "show-violations"}
+          fontWeight="medium"
+          onClick={() => {
+            if (showAllViolations) return;
+            showViolations(undefined);
+          }}
+        >
+          {showAllViolations ? "Violations Shown..." : "Show violations"}
+        </Button>
+      ),
+    });
   return {
     columns: [
       { Header: "car plate", accessor: "car plate", align: "left" },

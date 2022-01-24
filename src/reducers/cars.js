@@ -31,7 +31,7 @@ const cars = (
   switch (action.type) {
     case ADD_CAR:
       const updatedCars = _.cloneDeep(state.cars);
-      updatedCars.pop();
+      if (updatedCars.length >= 10) updatedCars.pop();
       action.car.color = randomHex();
       action.car.isTracked = false;
       updatedCars.unshift(action.car);

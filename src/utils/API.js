@@ -28,31 +28,15 @@ export const isAlive = async (ipAddress = null) => {
   }
 };
 
-export const launchGui = async (server = 0) => {
-  try {
-    const token = localStorage.getItem("token");
-    const bearerToken = `Bearer ${token}`;
-    server = server === null ? 0 : server;
-    await fetch(fileServerEndPoint + `/open-gui?server_id=${server}`, {
-      headers: {
-        Authorization: bearerToken,
-      },
-    });
-    return true;
-  } catch (e) {
-    return false;
-  }
-};
-
 export const addCarAPI = async (car) => {
-  // const token = localStorage.getItem("token");
-  // const bearerToken = `Bearer ${token}`;
+  const token = localStorage.getItem("token");
+  const bearerToken = `Bearer ${token}`;
   const res = await fetch(endPoint + `/api/cars`, {
     method: "POST",
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
-      // Authorization: bearerToken,
+      Authorization: bearerToken,
     },
     body: JSON.stringify(car),
   });
@@ -60,28 +44,28 @@ export const addCarAPI = async (car) => {
 };
 
 export const deleteCarAPI = async (plateNumber) => {
-  // const token = localStorage.getItem("token");
-  // const bearerToken = `Bearer ${token}`;
+  const token = localStorage.getItem("token");
+  const bearerToken = `Bearer ${token}`;
   const res = await fetch(endPoint + `/api/cars/${plateNumber}`, {
     method: "DELETE",
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
-      // Authorization: bearerToken,
+      Authorization: bearerToken,
     },
   });
   return res.json();
 };
 
 export const updateCarAPI = async (car, plateNumber) => {
-  // const token = localStorage.getItem("token");
-  // const bearerToken = `Bearer ${token}`;
+  const token = localStorage.getItem("token");
+  const bearerToken = `Bearer ${token}`;
   const res = await fetch(endPoint + `/api/cars/${plateNumber}`, {
     method: "PATCH",
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
-      // Authorization: bearerToken,
+      Authorization: bearerToken,
     },
     body: JSON.stringify(car),
   });
@@ -90,12 +74,12 @@ export const updateCarAPI = async (car, plateNumber) => {
 
 const callGet = async (url) => {
   try {
-    // const token = localStorage.getItem("token");
-    // const bearerToken = `Bearer ${token}`;
+    const token = localStorage.getItem("token");
+    const bearerToken = `Bearer ${token}`;
     const data = await fetch(url, {
-      // headers: {
-      //     Authorization: bearerToken,
-      // },
+      headers: {
+        Authorization: bearerToken,
+      },
     });
     return data.json();
   } catch (err) {
@@ -106,6 +90,20 @@ const callGet = async (url) => {
 export const getAllCarsApi = async (page = 1, search = "") => {
   const url = endPoint + `/api/cars?page=${page}&search=${search}`;
   return await callGet(url);
+};
+
+export const getCarApi = async (plateNumber) => {
+  if (plateNumber) {
+    const url = endPoint + `/api/cars/${plateNumber}`;
+    console.log("car url is", url);
+    return await callGet(url);
+  } else {
+    return {
+      success: true,
+      car: undefined,
+      totalCount: 0,
+    };
+  }
 };
 
 export const getViolationsAPI = async (page = 1, type = undefined, plateNumber = undefined) => {
@@ -136,67 +134,29 @@ export const getAnalyticsAPI = async (from = undefined, to = undefined) => {
 };
 
 export const deleteViolationAPI = async (id) => {
-  // const token = localStorage.getItem("token");
-  // const bearerToken = `Bearer ${token}`;
+  const token = localStorage.getItem("token");
+  const bearerToken = `Bearer ${token}`;
   const res = await fetch(endPoint + `/api/violations/${id}`, {
     method: "DELETE",
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
-      // Authorization: bearerToken,
+      Authorization: bearerToken,
     },
   });
   return res.json();
 };
 
 export const issueViolationAPI = async (id) => {
-  // const token = localStorage.getItem("token");
-  // const bearerToken = `Bearer ${token}`;
+  const token = localStorage.getItem("token");
+  const bearerToken = `Bearer ${token}`;
   const res = await fetch(endPoint + `/api/violations/${id}/issue`, {
     method: "PATCH",
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
-      // Authorization: bearerToken,
-    },
-  });
-  return res.json();
-};
-
-export const getZoneByType = async (type, page = 1) => {
-  const url = endPoint + `/api/zones/${type}?page=${page}`;
-  return await callGet(url);
-};
-
-export const getAlerts = async (page = 1) => {
-  const url = endPoint + `/api/alerts?page=${page}`;
-  return await callGet(url);
-};
-
-export const getAllServers = async () => {
-  const url = endPoint + `/api/servers`;
-  return await callGet(url);
-};
-
-export const getAreas = async () => {
-  const url = endPoint + `/api/areas`;
-  return await callGet(url);
-};
-
-export const addServer = async (serverId, ipAddress) => {
-  const token = localStorage.getItem("token");
-  const bearerToken = `Bearer ${token}`;
-  const res = await fetch(endPoint + `/api/servers`, {
-    method: "POST",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
       Authorization: bearerToken,
     },
-    body: JSON.stringify({
-      id: serverId,
-      ipAddress: ipAddress,
-    }),
   });
   return res.json();
 };
@@ -224,10 +184,26 @@ export const signIn = async (email, password) => {
   return jsonRes;
 };
 
-export const signUp = async (email, password, isAdmin) => {
+export const addUser = async (name, email, password, phone, position, info, level) => {
+  console.log(
+    "name",
+    name,
+    "email",
+    email,
+    "password",
+    password,
+    "phone",
+    phone,
+    "position",
+    position,
+    "info",
+    info,
+    "level",
+    level
+  );
   const token = localStorage.getItem("token");
   const bearerToken = `Bearer ${token}`;
-  const res = await fetch(endPoint + `/api/signup`, {
+  const res = await fetch(endPoint + `/api/users`, {
     method: "POST",
     headers: {
       Accept: "application/json",
@@ -235,87 +211,15 @@ export const signUp = async (email, password, isAdmin) => {
       Authorization: bearerToken,
     },
     body: JSON.stringify({
+      name,
       email,
       password,
-      isAdmin,
+      phone,
+      position,
+      info,
+      level,
     }),
   });
   const jsonRes = await res.json();
   return jsonRes;
-};
-
-export const updateServer = async (serverId, ipAddress) => {
-  const token = localStorage.getItem("token");
-  const bearerToken = `Bearer ${token}`;
-  const res = await fetch(endPoint + `/api/servers/${serverId}`, {
-    method: "PATCH",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-      Authorization: bearerToken,
-    },
-    body: JSON.stringify({
-      id: serverId,
-      ipAddress: ipAddress,
-    }),
-  });
-  return res.json();
-};
-export const resetCount = async (zoneId) => {
-  const token = localStorage.getItem("token");
-  const bearerToken = `Bearer ${token}`;
-  const res = await fetch(endPoint + `/api/zones/${zoneId}`, {
-    method: "PUT",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-      Authorization: bearerToken,
-    },
-    body: JSON.stringify({
-      In: 0,
-      Out: 0,
-    }),
-  });
-  return res.json();
-};
-
-export const deleteServer = async (serverId) => {
-  const token = localStorage.getItem("token");
-  const bearerToken = `Bearer ${token}`;
-  const res = await fetch(endPoint + `/api/servers/${serverId}`, {
-    method: "DELETE",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-      Authorization: bearerToken,
-    },
-  });
-  return res.json();
-};
-
-export const downloadVideo = async (videoRelativePath, fileName, ipAddress = null) => {
-  let url;
-  if (ipAddress !== null) {
-    url = `http://${ipAddress}:${flaskPort}` + `/incidents/${videoRelativePath}/${fileName}`;
-  } else {
-    url = fileServerEndPoint + `/incidents/${videoRelativePath}/${fileName}`;
-  }
-
-  try {
-    let data = await fetchWithTimeout(url);
-    try {
-      data = await data.json();
-    } catch (err) {
-      data = {
-        success: true,
-      };
-    }
-    return { data, url };
-  } catch (err) {
-    console.log(err);
-    const data = {
-      success: false,
-    };
-    return { data, url };
-  }
 };
