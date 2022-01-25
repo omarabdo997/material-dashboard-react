@@ -92,6 +92,11 @@ export const getAllCarsApi = async (page = 1, search = "") => {
   return await callGet(url);
 };
 
+export const getAllUsers = async (page = 1, search = "") => {
+  const url = endPoint + `/api/users?page=${page}&search=${search}`;
+  return await callGet(url);
+};
+
 export const getCarApi = async (plateNumber) => {
   if (plateNumber) {
     const url = endPoint + `/api/cars/${plateNumber}`;
@@ -147,6 +152,20 @@ export const deleteViolationAPI = async (id) => {
   return res.json();
 };
 
+export const deleteUser = async (id) => {
+  const token = localStorage.getItem("token");
+  const bearerToken = `Bearer ${token}`;
+  const res = await fetch(endPoint + `/api/users/${id}`, {
+    method: "DELETE",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: bearerToken,
+    },
+  });
+  return res.json();
+};
+
 export const issueViolationAPI = async (id) => {
   const token = localStorage.getItem("token");
   const bearerToken = `Bearer ${token}`;
@@ -184,41 +203,29 @@ export const signIn = async (email, password) => {
   return jsonRes;
 };
 
-export const addUser = async (name, email, password, phone, position, info, level) => {
-  console.log(
-    "name",
-    name,
-    "email",
-    email,
-    "password",
-    password,
-    "phone",
-    phone,
-    "position",
-    position,
-    "info",
-    info,
-    "level",
-    level
-  );
+export const addUser = async (formData) => {
   const token = localStorage.getItem("token");
   const bearerToken = `Bearer ${token}`;
   const res = await fetch(endPoint + `/api/users`, {
     method: "POST",
     headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
       Authorization: bearerToken,
     },
-    body: JSON.stringify({
-      name,
-      email,
-      password,
-      phone,
-      position,
-      info,
-      level,
-    }),
+    body: formData,
+  });
+  const jsonRes = await res.json();
+  return jsonRes;
+};
+
+export const editUser = async (formData, userId) => {
+  const token = localStorage.getItem("token");
+  const bearerToken = `Bearer ${token}`;
+  const res = await fetch(endPoint + `/api/users/${userId}`, {
+    method: "PUT",
+    headers: {
+      Authorization: bearerToken,
+    },
+    body: formData,
   });
   const jsonRes = await res.json();
   return jsonRes;

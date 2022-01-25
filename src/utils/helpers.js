@@ -28,7 +28,9 @@ export const getUserData = () => {
   const token = localStorage.getItem("token");
   if (token) {
     const decodedToken = jwt(token);
-    return decodedToken;
+    if (Date.now() <= decodedToken.exp * 1000) {
+      return decodedToken;
+    }
   }
   return undefined;
 };

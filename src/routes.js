@@ -59,14 +59,15 @@ const routes = [
   //   route: "/notifications",
   //   component: <Notifications />,
   // },
-  // {
-  //   type: "collapse",
-  //   name: "Profile",
-  //   key: "profile",
-  //   icon: <Icon fontSize="small">person</Icon>,
-  //   route: "/profile",
-  //   component: <Profile />,
-  // },
+  {
+    type: "collapse",
+    name: "Profile",
+    key: "profile",
+    levels: [1, 2, 3],
+    icon: <Icon fontSize="small">person</Icon>,
+    route: "/profile",
+    component: <Profile />,
+  },
   {
     type: "collapse",
     name: "Sign In",

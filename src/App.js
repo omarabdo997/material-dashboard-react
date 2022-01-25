@@ -24,6 +24,7 @@ import {
   handleUpdateCoord,
   handleRecieveViolationsCount,
   handleRecieveAnalytics,
+  handleRecieveUsers,
 } from "./actions";
 
 import Dashboard from "layouts/dashboard";
@@ -79,7 +80,7 @@ import { getUserData, signOut } from "./utils/helpers";
 
 function App(props) {
   const navigate = useNavigate();
-  const { violations, cars } = props;
+  const { violations, cars, users } = props;
   const user = getUserData();
   const filteredRouts = routes.filter((route) => {
     if (!route.levels && !route.unauth) return true;
@@ -136,6 +137,7 @@ function App(props) {
     props.dispatch(handleRecieveCars(cars.currentPage));
     props.dispatch(handleRecieveViolationsCount());
     props.dispatch(handleRecieveAnalytics());
+    props.dispatch(handleRecieveUsers(users.currentPage, users.currentSearch));
     props.dispatch(
       handleRecieveViolations(
         violations.currentPage,
@@ -307,7 +309,7 @@ function App(props) {
   );
 }
 
-const stateToProps = ({ cars, violations, analytics }) => {
-  return { cars, violations, analytics };
+const stateToProps = ({ cars, violations, analytics, users }) => {
+  return { cars, violations, analytics, users };
 };
 export default connect(stateToProps)(App);

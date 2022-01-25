@@ -25,6 +25,7 @@ import AppBar from "@mui/material/AppBar";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Icon from "@mui/material/Icon";
+import Tooltip from "@mui/material/Tooltip";
 
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
@@ -38,9 +39,14 @@ import breakpoints from "assets/theme/base/breakpoints";
 import burceMars from "assets/images/bruce-mars.jpg";
 import backgroundImage from "assets/images/bg-profile.jpeg";
 
-function Header({ children }) {
+import { getUserData } from "../../../../utils/helpers";
+
+import { endPoint } from "../../../../utils/API";
+
+function Header({ children, edit }) {
   const [tabsOrientation, setTabsOrientation] = useState("horizontal");
   const [tabValue, setTabValue] = useState(0);
+  const user = getUserData();
 
   useEffect(() => {
     // A function that sets the orientation state of the tabs.
@@ -94,20 +100,33 @@ function Header({ children }) {
       >
         <Grid container spacing={3} alignItems="center">
           <Grid item>
-            <MDAvatar src={burceMars} alt="profile-image" size="xl" shadow="sm" />
+            <MDAvatar src={endPoint + user?.imageUrl} alt="profile-image" size="xl" shadow="sm" />
           </Grid>
-          <Grid item>
+          {/* <Grid item> */}
+          <MDBox display="flex" justifyContent="space-between" alignItems="center" pt={2} px={2}>
             <MDBox height="100%" mt={0.5} lineHeight={1}>
               <MDTypography variant="h5" fontWeight="medium">
-                Richard Davis
+                {user?.name}
               </MDTypography>
               <MDTypography variant="button" color="text" fontWeight="regular">
-                CEO / Co-Founder
+                {user?.position}
               </MDTypography>
             </MDBox>
-          </Grid>
+            <MDTypography
+              variant="body2"
+              color="secondary"
+              ml="30px"
+              sx={{ cursor: "pointer" }}
+              onClick={edit}
+            >
+              <Tooltip title={"edit"} placement="top">
+                <Icon>edit</Icon>
+              </Tooltip>
+            </MDTypography>
+          </MDBox>
+          {/* </Grid> */}
           <Grid item xs={12} md={6} lg={4} sx={{ ml: "auto" }}>
-            <AppBar position="static">
+            {/* <AppBar position="static">
               <Tabs orientation={tabsOrientation} value={tabValue} onChange={handleSetTabValue}>
                 <Tab
                   label="App"
@@ -134,7 +153,7 @@ function Header({ children }) {
                   }
                 />
               </Tabs>
-            </AppBar>
+            </AppBar> */}
           </Grid>
         </Grid>
         {children}

@@ -1,29 +1,28 @@
-// import {_getUsers} from '../utils/_DATA'
-
-export const RECIEVE_USERS = "RECIEVE_USERS";
-export const ADD_USER_QUESTION = "ADD_USER_QUESTION";
-export const ANSWER_USER_QUESTION = "ANSWER_USER_QUESTION";
 export const ADD_USER = "ADD_USER";
+export const EDIT_USER = "EDIT_USER";
+export const DELETE_USER = "DELETE_USER";
+export const RECIEVE_USERS = "RECIEVE_USERS";
 
-export const recieveUsers = (users) => ({
+export const addUserAction = (user) => ({
+  type: ADD_USER,
+  user,
+});
+
+export const recieveUsersAction = (users, totalCount, page, search) => ({
   type: RECIEVE_USERS,
   users,
+  totalCount,
+  page,
+  search,
 });
 
-export const addUserQuestion = (authedUser, question) => ({
-  type: ADD_USER_QUESTION,
-  authedUser,
-  question,
+export const deleteUserAction = (users, totalCount) => ({
+  type: DELETE_USER,
+  users,
+  totalCount,
 });
 
-export const answerUserQuestion = (qid, user, answer) => ({
-  type: ANSWER_USER_QUESTION,
-  qid,
-  user,
-  answer,
-});
-
-export const addUser = (user) => ({
-  type: ADD_USER,
+export const editUserAction = (user) => ({
+  type: EDIT_USER,
   user,
 });

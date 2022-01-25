@@ -33,17 +33,34 @@ import CoverLayout from "layouts/authentication/components/CoverLayout";
 
 // Images
 import bgImage from "assets/images/bg-sign-up-cover.jpeg";
-import { addUser } from "../../../utils/API";
-import { useState } from "react";
+import { addUser, editUser } from "../../../utils/API";
+import { useState, useEffect } from "react";
+import IconButton from "@mui/material/IconButton";
+import PhotoCamera from "@mui/icons-material/PhotoCamera";
+import { styled } from "@mui/material/styles";
+import Avatar from "@mui/material/Avatar";
+import Stack from "@mui/material/Stack";
+import { getAllCarsApi, endPoint } from "utils/API";
+import { getUserData } from "utils/helpers";
 
-function Cover() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+const Input = styled("input")({
+  display: "none",
+});
+
+function Cover({ edit, user, onSubmit }) {
+  const loggedUser = getUserData();
+  console.log("the passed user is", user);
+  const levels = { Admin: 1, "Desk Operator": 2, "Car Operator": 3 };
+  const levelsR = { 1: "Admin", 2: "Desk Operator", 3: "Car Operator" };
+  const [name, setName] = useState(user?.name || "");
+  const [email, setEmail] = useState(user?.email || "");
+  const [myPassword, setMyPassword] = useState("");
   const [password, setPassword] = useState("");
-  const [phone, setPhone] = useState("");
-  const [position, setPosition] = useState("");
-  const [info, setInfo] = useState("");
-  const [level, setLevel] = useState("Desk Operator");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [phone, setPhone] = useState(user?.phone || "");
+  const [position, setPosition] = useState(user?.position || "");
+  const [info, setInfo] = useState(user?.info || "");
+  const [level, setLevel] = useState(levelsR[user?.level || 2]);
   const [errorMessageName, setErrorMessageName] = useState("");
   const [errorMessagePhone, setErrorMessagePhone] = useState("");
   const [errorMessagePosition, setErrorMessagePosition] = useState("");
@@ -51,9 +68,34 @@ function Cover() {
   const [errorMessageLevel, setErrorMessageLevel] = useState("");
   const [errorMessageEmail, setErrorMessageEmail] = useState("");
   const [errorMessagePassword, setErrorMessagePassword] = useState("");
+  const [errorMessageConfirmPassword, setErrorMessageConfirmPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const levels = { Admin: 1, "Desk Operator": 2, "Car Operator": 3 };
+  const [image, setImage] = useState(undefined);
+  const [imageSrc, setImageSrc] = useState(user?.imageUrl ? endPoint + user?.imageUrl : "");
+  const [cars, setCars] = useState([]);
+  const [car, setCar] = useState(user?.car?.plateNumber || "No Option");
+  const [carsSearch, setCarsSearch] = useState(user?.car?.plateNumber || "");
+
+  console.log("cars state", cars);
+  useEffect(() => {
+    const searchWord = carsSearch;
+    setTimeout(async () => {
+      if (searchWord === carsSearch) {
+        const cars = await getAllCarsApi(1, carsSearch);
+        console.log("cars are", cars);
+        let carsNew = [];
+        if (cars?.cars) {
+          carsNew = cars?.cars.map((car) => car?.plateNumber);
+          carsNew.push("No Option");
+          setCars(carsNew);
+          return;
+        }
+        carsNew.push("No Option");
+        setCars(carsNew);
+      }
+    }, 300);
+  }, [carsSearch]);
 
   const setErrorMessages = (message, type = "") => {
     if (type === "name") {
@@ -82,8 +124,42 @@ function Cover() {
     }
   };
 
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    setImage(file);
+    const reader = new FileReader();
+    const url = reader.readAsDataURL(file);
+    reader.onloadend = () => {
+      setImageSrc(reader.result);
+    };
+  };
+
   const handleSubmit = async () => {
-    const res = await addUser(name, email, password, phone, position, info, levels[level]);
+    if (password !== confirmPassword) {
+      setErrorMessagePassword("Passwords mismatch!");
+      setErrorMessageConfirmPassword("Passwords mismatch!");
+      setPassword("");
+      setConfirmPassword("");
+      return;
+    }
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("image", image);
+    formData.append("email", email);
+    formData.append("myPassword", myPassword);
+    formData.append("password", password);
+    formData.append("phone", phone);
+    formData.append("position", position);
+    formData.append("info", info);
+    formData.append("level", levels[level]);
+    car !== "No Option" && formData.append("carId", car);
+    let res;
+    if (edit) {
+      res = await editUser(formData, user?.id);
+    } else {
+      res = await addUser(formData);
+    }
+
     setSuccessMessage("");
     setErrorMessageName("");
     setErrorMessagePhone("");
@@ -92,9 +168,39 @@ function Cover() {
     setErrorMessageLevel("");
     setErrorMessageEmail("");
     setErrorMessagePassword("");
+    setErrorMessageConfirmPassword("");
     setErrorMessage("");
     if (res.success) {
-      setSuccessMessage("User was added successfully!");
+      if (!edit) {
+        setSuccessMessage("User was added successfully!");
+        setName("");
+        setPhone("");
+        setPosition("");
+        setInfo("");
+        setLevel("Desk Operator");
+        setCar("No Option");
+        setEmail("");
+        setMyPassword("");
+        setPassword("");
+        setConfirmPassword("");
+        setImage(undefined);
+        setImageSrc("");
+      } else {
+        setSuccessMessage("User was edited successfully!");
+        setName("");
+        setPhone("");
+        setPosition("");
+        setInfo("");
+        setLevel("Desk Operator");
+        setCar("No Option");
+        setEmail("");
+        setMyPassword("");
+        setPassword("");
+        setConfirmPassword("");
+        setImage(undefined);
+        setImageSrc("");
+        onSubmit();
+      }
     } else {
       if (res.validators) {
         for (let validator of res.validators) {
@@ -105,147 +211,536 @@ function Cover() {
       }
     }
   };
-  return (
-    <CoverLayout image={bgImage}>
-      <Card>
-        <MDBox
-          variant="gradient"
-          bgColor="info"
-          borderRadius="lg"
-          coloredShadow="success"
-          mx={2}
-          mt={-3}
-          p={3}
-          mb={1}
-          textAlign="center"
-        >
-          <MDTypography variant="h4" fontWeight="medium" color="white" mt={1}>
-            Add User
-          </MDTypography>
-          <MDTypography display="block" variant="button" color="white" my={1}>
-            Please fill out the following fields
-          </MDTypography>
-        </MDBox>
-        <MDBox pt={4} pb={3} px={3}>
-          <MDBox component="form" role="form">
-            <MDBox mb={2}>
-              <MDInput
-                type="text"
-                label="Name"
-                variant="standard"
-                fullWidth
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-              <Typography mt={1} variant="h6" color="error" sx={{ fontWeight: 100 }} component="h2">
-                {errorMessageName}
-              </Typography>
-            </MDBox>
-            <MDBox mb={2}>
-              <MDInput
-                type="email"
-                label="Email"
-                variant="standard"
-                fullWidth
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              <Typography mt={1} variant="h6" color="error" sx={{ fontWeight: 100 }} component="h2">
-                {errorMessageEmail}
-              </Typography>
-            </MDBox>
-            <MDBox mb={2}>
-              <MDInput
-                type="password"
-                label="Password"
-                variant="standard"
-                fullWidth
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              <Typography mt={1} variant="h6" color="error" sx={{ fontWeight: 100 }} component="h2">
-                {errorMessagePassword}
-              </Typography>
-            </MDBox>
-            <MDBox mb={2}>
-              <MDInput
-                type="text"
-                label="Phone"
-                variant="standard"
-                fullWidth
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-              />
-              <Typography mt={1} variant="h6" color="error" sx={{ fontWeight: 100 }} component="h2">
-                {errorMessagePhone}
-              </Typography>
-            </MDBox>
-            <MDBox mb={2}>
-              <MDInput
-                type="text"
-                label="Position"
-                variant="standard"
-                fullWidth
-                value={position}
-                onChange={(e) => setPosition(e.target.value)}
-              />
-              <Typography mt={1} variant="h6" color="error" sx={{ fontWeight: 100 }} component="h2">
-                {errorMessagePosition}
-              </Typography>
-            </MDBox>
-            <MDBox mb={2}>
-              <MDInput
-                type="text"
-                multiline
-                rows={4}
-                label="Info"
-                variant="standard"
-                fullWidth
-                value={info}
-                onChange={(e) => setInfo(e.target.value)}
-              />
-              <Typography mt={1} variant="h6" color="error" sx={{ fontWeight: 100 }} component="h2">
-                {errorMessageInfo}
-              </Typography>
-            </MDBox>
-            <MDBox mb={2}>
-              <Autocomplete
-                disableClearable
-                options={["Admin", "Desk Operator", "Car Operator"]}
-                onChange={(event, newValue) => {
-                  setLevel(newValue);
-                }}
-                defaultValue={"Desk Operator"}
-                size="small"
-                sx={{ width: "200px" }}
-                renderInput={(params) => <MDInput {...params} label="User Type" />}
-              />
-              <Typography mt={1} variant="h6" color="error" sx={{ fontWeight: 100 }} component="h2">
-                {errorMessageLevel}
-              </Typography>
-            </MDBox>
-            <MDBox mt={4} mb={1}>
-              <MDButton variant="gradient" color="info" fullWidth onClick={handleSubmit}>
-                Add User
-              </MDButton>
-              <Typography mt={1} variant="h6" color="error" sx={{ fontWeight: 100 }} component="h2">
-                {errorMessage}
-              </Typography>
-              <Typography
-                mt={1}
-                variant="h6"
-                color="success"
-                sx={{ fontWeight: 100, color: "green" }}
-                component="h2"
-              >
-                {successMessage}
-              </Typography>
+  if (!edit) {
+    return (
+      <CoverLayout image={bgImage}>
+        <Card>
+          <MDBox
+            variant="gradient"
+            bgColor="info"
+            borderRadius="lg"
+            coloredShadow="success"
+            mx={2}
+            mt={-3}
+            p={3}
+            mb={1}
+            textAlign="center"
+          >
+            <MDTypography variant="h4" fontWeight="medium" color="white" mt={1}>
+              Add User
+            </MDTypography>
+            <MDTypography display="block" variant="button" color="white" my={1}>
+              Please fill out the following fields
+            </MDTypography>
+          </MDBox>
+          <MDBox pt={4} pb={3} px={3}>
+            <MDBox component="form" role="form">
+              <MDBox mb={2}>
+                <label htmlFor="icon-button-file">
+                  <Stack direction="row" spacing={2}>
+                    <Avatar src={imageSrc} sx={{ width: 100, height: 100 }} />
+                    <Input
+                      accept="image/*"
+                      id="icon-button-file"
+                      type="file"
+                      onChange={handleImageUpload}
+                    />
+                    <IconButton
+                      color="primary"
+                      aria-label="upload picture"
+                      component="span"
+                      sx={{ color: "#2196f3" }}
+                    >
+                      <PhotoCamera />
+                    </IconButton>
+                  </Stack>
+                </label>
+              </MDBox>
+              <MDBox mb={2}>
+                <MDInput
+                  type="text"
+                  label="Name"
+                  variant="standard"
+                  fullWidth
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+                <Typography
+                  mt={1}
+                  variant="h6"
+                  color="error"
+                  sx={{ fontWeight: 100 }}
+                  component="h2"
+                >
+                  {errorMessageName}
+                </Typography>
+              </MDBox>
+              <MDBox mb={2}>
+                <MDInput
+                  type="email"
+                  label="Email"
+                  variant="standard"
+                  fullWidth
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+                <Typography
+                  mt={1}
+                  variant="h6"
+                  color="error"
+                  sx={{ fontWeight: 100 }}
+                  component="h2"
+                >
+                  {errorMessageEmail}
+                </Typography>
+              </MDBox>
+              <MDBox mb={2}>
+                <MDInput
+                  type="password"
+                  label="Password"
+                  variant="standard"
+                  fullWidth
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <Typography
+                  mt={1}
+                  variant="h6"
+                  color="error"
+                  sx={{ fontWeight: 100 }}
+                  component="h2"
+                >
+                  {errorMessagePassword}
+                </Typography>
+              </MDBox>
+              <MDBox mb={2}>
+                <MDInput
+                  type="password"
+                  label="Confirm Password"
+                  variant="standard"
+                  fullWidth
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+                <Typography
+                  mt={1}
+                  variant="h6"
+                  color="error"
+                  sx={{ fontWeight: 100 }}
+                  component="h2"
+                >
+                  {errorMessageConfirmPassword}
+                </Typography>
+              </MDBox>
+              <MDBox mb={2}>
+                <MDInput
+                  type="text"
+                  label="Phone"
+                  variant="standard"
+                  fullWidth
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                />
+                <Typography
+                  mt={1}
+                  variant="h6"
+                  color="error"
+                  sx={{ fontWeight: 100 }}
+                  component="h2"
+                >
+                  {errorMessagePhone}
+                </Typography>
+              </MDBox>
+              <MDBox mb={2}>
+                <MDInput
+                  type="text"
+                  label="Position"
+                  variant="standard"
+                  fullWidth
+                  value={position}
+                  onChange={(e) => setPosition(e.target.value)}
+                />
+                <Typography
+                  mt={1}
+                  variant="h6"
+                  color="error"
+                  sx={{ fontWeight: 100 }}
+                  component="h2"
+                >
+                  {errorMessagePosition}
+                </Typography>
+              </MDBox>
+              <MDBox mb={2}>
+                <MDInput
+                  type="text"
+                  multiline
+                  rows={4}
+                  label="Info"
+                  variant="standard"
+                  fullWidth
+                  value={info}
+                  onChange={(e) => setInfo(e.target.value)}
+                />
+                <Typography
+                  mt={1}
+                  variant="h6"
+                  color="error"
+                  sx={{ fontWeight: 100 }}
+                  component="h2"
+                >
+                  {errorMessageInfo}
+                </Typography>
+              </MDBox>
+              <MDBox mb={2}>
+                <Autocomplete
+                  disableClearable
+                  options={["Admin", "Desk Operator", "Car Operator"]}
+                  onChange={(event, newValue) => {
+                    setLevel(newValue);
+                  }}
+                  defaultValue={"Desk Operator"}
+                  size="middle"
+                  sx={{ width: "200px" }}
+                  renderInput={(params) => <MDInput {...params} label="User Type" />}
+                />
+                <Typography
+                  mt={1}
+                  variant="h6"
+                  color="error"
+                  sx={{ fontWeight: 100 }}
+                  component="h2"
+                >
+                  {errorMessageLevel}
+                </Typography>
+              </MDBox>
+              <MDBox mb={2}>
+                <Autocomplete
+                  disableClearable
+                  options={cars}
+                  onChange={(event, newValue) => {
+                    setCar(newValue);
+                  }}
+                  // defaultValue={cars?.length > 0 ? cars[0] : ""}
+                  size="middle"
+                  sx={{ width: "200px" }}
+                  renderInput={(params) => (
+                    <MDInput
+                      {...params}
+                      label="Car Plate Number"
+                      onChange={(e) => setCarsSearch(e.target.value)}
+                    />
+                  )}
+                />
+                <Typography
+                  mt={1}
+                  variant="h6"
+                  color="error"
+                  sx={{ fontWeight: 100 }}
+                  component="h2"
+                >
+                  {errorMessageLevel}
+                </Typography>
+              </MDBox>
+              <MDBox mt={4} mb={1}>
+                <MDButton variant="gradient" color="info" fullWidth onClick={handleSubmit}>
+                  Add User
+                </MDButton>
+                <Typography
+                  mt={1}
+                  variant="h6"
+                  color="error"
+                  sx={{ fontWeight: 100 }}
+                  component="h2"
+                >
+                  {errorMessage}
+                </Typography>
+                <Typography
+                  mt={1}
+                  variant="h6"
+                  color="success"
+                  sx={{ fontWeight: 100, color: "green" }}
+                  component="h2"
+                >
+                  {successMessage}
+                </Typography>
+              </MDBox>
             </MDBox>
           </MDBox>
-        </MDBox>
-      </Card>
-    </CoverLayout>
-  );
+        </Card>
+      </CoverLayout>
+    );
+  } else {
+    return (
+      <div style={{ padding: "30px" }}>
+        <Card p={2}>
+          <MDBox
+            variant="gradient"
+            bgColor="info"
+            borderRadius="lg"
+            coloredShadow="success"
+            mx={2}
+            mt={3}
+            p={3}
+            mb={1}
+            textAlign="center"
+            mx={{ width: "350px" }}
+          >
+            <MDTypography variant="h4" fontWeight="medium" color="white" mt={1}>
+              Edit User
+            </MDTypography>
+            <MDTypography display="block" variant="button" color="white" my={1}>
+              Please fill out the following fields
+            </MDTypography>
+          </MDBox>
+          <MDBox pt={4} pb={3} px={3}>
+            <MDBox component="form" role="form">
+              <MDBox mb={2}>
+                <label htmlFor="icon-button-file">
+                  <Stack direction="row" spacing={2}>
+                    <Avatar src={imageSrc} sx={{ width: 100, height: 100 }} />
+                    <Input
+                      accept="image/*"
+                      id="icon-button-file"
+                      type="file"
+                      onChange={handleImageUpload}
+                    />
+                    <IconButton
+                      color="primary"
+                      aria-label="upload picture"
+                      component="span"
+                      sx={{ color: "#2196f3" }}
+                    >
+                      <PhotoCamera />
+                    </IconButton>
+                  </Stack>
+                </label>
+              </MDBox>
+              <MDBox mb={2}>
+                <MDInput
+                  type="text"
+                  label="Name"
+                  variant="standard"
+                  fullWidth
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+                <Typography
+                  mt={1}
+                  variant="h6"
+                  color="error"
+                  sx={{ fontWeight: 100 }}
+                  component="h2"
+                >
+                  {errorMessageName}
+                </Typography>
+              </MDBox>
+              <MDBox mb={2}>
+                <MDInput
+                  type="email"
+                  label="Email"
+                  variant="standard"
+                  fullWidth
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+                <Typography
+                  mt={1}
+                  variant="h6"
+                  color="error"
+                  sx={{ fontWeight: 100 }}
+                  component="h2"
+                >
+                  {errorMessageEmail}
+                </Typography>
+              </MDBox>
+              <MDBox mb={2}>
+                <MDInput
+                  type="password"
+                  label="My Current Password"
+                  variant="standard"
+                  fullWidth
+                  value={myPassword}
+                  onChange={(e) => setMyPassword(e.target.value)}
+                />
+              </MDBox>
+              <MDBox mb={2}>
+                <MDInput
+                  type="password"
+                  label="Password"
+                  variant="standard"
+                  fullWidth
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <Typography
+                  mt={1}
+                  variant="h6"
+                  color="error"
+                  sx={{ fontWeight: 100 }}
+                  component="h2"
+                >
+                  {errorMessagePassword}
+                </Typography>
+              </MDBox>
+              <MDBox mb={2}>
+                <MDInput
+                  type="password"
+                  label="Confirm Password"
+                  variant="standard"
+                  fullWidth
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+                <Typography
+                  mt={1}
+                  variant="h6"
+                  color="error"
+                  sx={{ fontWeight: 100 }}
+                  component="h2"
+                >
+                  {errorMessageConfirmPassword}
+                </Typography>
+              </MDBox>
+              <MDBox mb={2}>
+                <MDInput
+                  type="text"
+                  label="Phone"
+                  variant="standard"
+                  fullWidth
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                />
+                <Typography
+                  mt={1}
+                  variant="h6"
+                  color="error"
+                  sx={{ fontWeight: 100 }}
+                  component="h2"
+                >
+                  {errorMessagePhone}
+                </Typography>
+              </MDBox>
+              <MDBox mb={2}>
+                <MDInput
+                  type="text"
+                  label="Position"
+                  variant="standard"
+                  fullWidth
+                  value={position}
+                  onChange={(e) => setPosition(e.target.value)}
+                />
+                <Typography
+                  mt={1}
+                  variant="h6"
+                  color="error"
+                  sx={{ fontWeight: 100 }}
+                  component="h2"
+                >
+                  {errorMessagePosition}
+                </Typography>
+              </MDBox>
+              <MDBox mb={2}>
+                <MDInput
+                  type="text"
+                  multiline
+                  rows={4}
+                  label="Info"
+                  variant="standard"
+                  fullWidth
+                  value={info}
+                  onChange={(e) => setInfo(e.target.value)}
+                />
+                <Typography
+                  mt={1}
+                  variant="h6"
+                  color="error"
+                  sx={{ fontWeight: 100 }}
+                  component="h2"
+                >
+                  {errorMessageInfo}
+                </Typography>
+              </MDBox>
+              <MDBox mb={2}>
+                <Autocomplete
+                  disableClearable
+                  options={["Admin", "Desk Operator", "Car Operator"]}
+                  onChange={(event, newValue) => {
+                    setLevel(newValue);
+                  }}
+                  defaultValue={level}
+                  disabled={user?.id == loggedUser.id || loggedUser?.level != 1}
+                  size="middle"
+                  sx={{ width: "200px" }}
+                  renderInput={(params) => <MDInput {...params} label="User Type" />}
+                />
+                <Typography
+                  mt={1}
+                  variant="h6"
+                  color="error"
+                  sx={{ fontWeight: 100 }}
+                  component="h2"
+                >
+                  {errorMessageLevel}
+                </Typography>
+              </MDBox>
+              <MDBox mb={2}>
+                <Autocomplete
+                  disableClearable
+                  options={cars}
+                  onChange={(event, newValue) => {
+                    setCar(newValue);
+                  }}
+                  defaultValue={car}
+                  disabled={loggedUser?.level != 1}
+                  size="middle"
+                  sx={{ width: "200px" }}
+                  renderInput={(params) => (
+                    <MDInput
+                      {...params}
+                      label="Car Plate Number"
+                      onChange={(e) => setCarsSearch(e.target.value)}
+                    />
+                  )}
+                />
+                <Typography
+                  mt={1}
+                  variant="h6"
+                  color="error"
+                  sx={{ fontWeight: 100 }}
+                  component="h2"
+                >
+                  {errorMessageLevel}
+                </Typography>
+              </MDBox>
+              <MDBox mt={4} mb={1}>
+                <MDButton variant="gradient" color="info" fullWidth onClick={handleSubmit}>
+                  Edit User
+                </MDButton>
+                <Typography
+                  mt={1}
+                  variant="h6"
+                  color="error"
+                  sx={{ fontWeight: 100 }}
+                  component="h2"
+                >
+                  {errorMessage}
+                </Typography>
+                <Typography
+                  mt={1}
+                  variant="h6"
+                  color="success"
+                  sx={{ fontWeight: 100, color: "green" }}
+                  component="h2"
+                >
+                  {successMessage}
+                </Typography>
+              </MDBox>
+            </MDBox>
+          </MDBox>
+        </Card>
+      </div>
+    );
+  }
 }
 
 export default Cover;

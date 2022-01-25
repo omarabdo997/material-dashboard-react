@@ -42,15 +42,19 @@ import CarDialog from "examples/Modals/CarDialog";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import DataTable from "examples/Tables/DataTable";
+import { getUserData } from "utils/helpers";
 
 // Data
 import authorsTableData from "layouts/tables/data/authorsTableData";
+import usersTableData from "layouts/tables/data/usersTableData";
 import projectsTableData from "layouts/tables/data/projectsTableData";
 
 function Tables(props) {
-  const { violations, cars, messages } = props;
+  const { violations, cars, messages, users } = props;
   const [addCarDialogOpen, setAddCarDialogOpen] = useState(false);
   const [editCarDialogOpen, setEditCarDialogOpen] = useState("");
+
+  const user = getUserData();
 
   const openAddCarDialog = () => {
     setAddCarDialogOpen(true);
@@ -116,11 +120,19 @@ function Tables(props) {
     openAddCarDialog,
     openEditCarDialog
   );
+  const { columns: ucolumns, rows: urows } = usersTableData(
+    users,
+    deleteCar,
+    showViolations,
+    openAddCarDialog,
+    openEditCarDialog
+  );
   const { columns: pColumns, rows: pRows } = projectsTableData(
     violations,
     deleteViolation,
     issueViolation
   );
+  console.log(ucolumns, urows);
 
   return (
     <DashboardLayout>
@@ -176,6 +188,43 @@ function Tables(props) {
               </MDBox>
             </Card>
           </Grid>
+          {user?.level == 1 ? (
+            <Grid item xs={12}>
+              <Card>
+                <MDBox
+                  mx={2}
+                  mt={-3}
+                  py={3}
+                  px={2}
+                  variant="gradient"
+                  bgColor="info"
+                  borderRadius="lg"
+                  coloredShadow="info"
+                >
+                  <MDTypography variant="h6" color="white">
+                    Users Table
+                  </MDTypography>
+                </MDBox>
+                <MDBox pt={3}>
+                  <DataTable
+                    table={{ columns: ucolumns, rows: urows }}
+                    isSorted={false}
+                    canSearch={false}
+                    currentSearch={users.currentSearch}
+                    pageCount={Math.floor((props.users.totalCount - 1) / 10) + 1}
+                    pageNumber={users.currentPage}
+                    showTotalEntries={true}
+                    entriesPerPage={false}
+                    showTotalEntries={false}
+                    recieveData={recieveCars}
+                    searchFunctionality={searchCars}
+                    canSearch
+                    noEndBorder
+                  />
+                </MDBox>
+              </Card>
+            </Grid>
+          ) : null}
           <Grid item xs={12}>
             <Card>
               <MDBox
@@ -215,7 +264,7 @@ function Tables(props) {
     </DashboardLayout>
   );
 }
-const stateToProps = ({ cars, violations, messages }) => {
-  return { cars, violations, messages };
+const stateToProps = ({ cars, violations, messages, users }) => {
+  return { cars, violations, messages, users };
 };
 export default connect(stateToProps)(Tables);

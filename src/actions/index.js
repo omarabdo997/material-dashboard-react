@@ -1,6 +1,5 @@
 import { setLoading } from "./loading";
 import { authUser, unauthUser } from "./authedUser";
-import { recieveUsers, addUserQuestion, answerUserQuestion, addUser } from "./users";
 import { addQuestion } from "./questions";
 import {
   addCar,
@@ -11,6 +10,7 @@ import {
   setTracked,
   updateCoord,
 } from "./cars";
+import { addUserAction, recieveUsersAction, deleteUserAction, editUserAction } from "./users";
 import {
   recieveViolations,
   deleteViolation,
@@ -31,6 +31,10 @@ import {
   deleteViolationAPI,
   issueViolationAPI,
   getAnalyticsAPI,
+  getAllUsers,
+  addUser,
+  editUser,
+  deleteUser,
 } from "../utils/API";
 import { getUserData } from "../utils/helpers";
 
@@ -39,6 +43,21 @@ export const handleAddCar = (car) => {
     const res = await addCarAPI(car);
     if (res?.success === true) {
       dispatch(addCar(res.car));
+    } else {
+      dispatch(
+        addMssg({
+          errorMessage: res?.message || "Something went wrong!",
+          validators: res?.validators || undefined,
+        })
+      );
+    }
+  };
+};
+export const handleAddUser = (userFormData) => {
+  return async (dispatch) => {
+    const res = await addUser(userFormData);
+    if (res?.success === true) {
+      dispatch(addUserAction(res.user));
     } else {
       dispatch(
         addMssg({
@@ -82,6 +101,28 @@ export const handleRecieveCars = (page, search = "") => {
   };
 };
 
+export const handleRecieveUsers = (page, search = "") => {
+  const user = getUserData();
+  console.log("user is", user);
+  return async (dispatch) => {
+    console.log("in dispatch");
+    if (!user) {
+      return;
+    }
+    if (user?.level != 1) return;
+    const res = await getAllUsers(page, search);
+    if (res?.success === true) {
+      dispatch(recieveUsersAction(res.users, res.totalCount, page, search));
+    } else {
+      dispatch(
+        addMssg({
+          errorMessage: res?.message || "Something went wrong!",
+        })
+      );
+    }
+  };
+};
+
 export const handleRecieveAnalytics = (from = undefined, to = undefined) => {
   const user = getUserData();
   return async (dispatch) => {
@@ -111,6 +152,41 @@ export const handleDeleteCar = (plateNumber) => {
       console.log("current page is", currentPage);
       const res2 = await getAllCarsApi(currentPage, currentSearch);
       dispatch(deleteCar(res2.cars, res2.totalCount));
+    } else {
+      dispatch(
+        addMssg({
+          errorMessage: res?.message || "Something went wrong!",
+          validators: res?.validators || undefined,
+        })
+      );
+    }
+  };
+};
+
+export const handleDeleteUser = (id) => {
+  return async (dispatch, getState) => {
+    const res = await deleteUser(id);
+    if (res?.success === true) {
+      const { currentPage, currentSearch } = getState().users;
+      console.log("current page is", currentPage);
+      const res2 = await getAllUsers(currentPage, currentSearch);
+      dispatch(deleteUserAction(res2.users, res2.totalCount));
+    } else {
+      dispatch(
+        addMssg({
+          errorMessage: res?.message || "Something went wrong!",
+          validators: res?.validators || undefined,
+        })
+      );
+    }
+  };
+};
+
+export const handleUpdateUser = (user, id) => {
+  return async (dispatch) => {
+    const res = await editUser(user, id);
+    if (res?.success === true) {
+      dispatch(editUserAction(res.user));
     } else {
       dispatch(
         addMssg({
