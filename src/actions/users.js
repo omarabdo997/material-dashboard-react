@@ -22,7 +22,8 @@ export const deleteUserAction = (users, totalCount) => ({
   totalCount,
 });
 
-export const editUserAction = (user) => ({
+export const editUserAction = (user, token) => ({
   type: EDIT_USER,
   user,
+  token,
 });

@@ -39,12 +39,13 @@ const users = (
       };
     }
     case EDIT_USER: {
-      const { user } = action;
+      const { user, token } = action;
+      token && localStorage.setItem("token", token);
       const updatedUsers = _.cloneDeep(state.users);
-      for (let oldUser of updatedUser) {
+      for (let oldUser of updatedUsers) {
         if (oldUser.id === user?.id) {
           Object.keys(oldUser).forEach((key) => {
-            oldUser[key] = user[key];
+            oldUser[key] = _.cloneDeep(user[key]);
           });
         }
       }

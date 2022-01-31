@@ -44,6 +44,7 @@ import {
   handleRecieveViolations,
   handleRecieveAnalytics,
   handleRecieveViolationsCount,
+  handleRecieveUsers,
 } from "../../../actions";
 
 import { signIn } from "../../../utils/API";
@@ -87,6 +88,7 @@ function Basic(props) {
       props.dispatch(handleRecieveViolationsCount());
       props.dispatch(handleRecieveAnalytics());
       props.dispatch(handleRecieveViolations(1));
+      props.dispatch(handleRecieveUsers(1));
     } else {
       if (res.validators) {
         for (let validator of res.validators) {

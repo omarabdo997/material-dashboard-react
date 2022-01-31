@@ -3,6 +3,8 @@
 // Soft UI Dashboard React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
+import MDInput from "components/MDInput";
+
 import MDAvatar from "components/MDAvatar";
 import MDBadge from "components/MDBadge";
 
@@ -18,13 +20,24 @@ import Button from "@mui/material/Button";
 import team2 from "assets/images/team-2.jpg";
 import MDButton from "components/MDButton";
 import { getUserData } from "../../../utils/helpers";
+import Typography from "@mui/material/Typography";
 
 import team3 from "assets/images/team-3.jpg";
 import team4 from "assets/images/team-4.jpg";
 
 import "./index.css";
 
-export default function data(cars, deleteCar, showViolations, openDialog, openEditDialog) {
+export default function data(
+  cars,
+  deleteCar,
+  showViolations,
+  openDialog,
+  openEditDialog,
+  speed,
+  setSpeed,
+  errorSpeed,
+  changeCarSpeed
+) {
   const user = getUserData();
   const Author = ({ image, name, email }) => (
     <MDBox display="flex" alignItems="center" lineHeight={1}>
@@ -64,6 +77,11 @@ export default function data(cars, deleteCar, showViolations, openDialog, openEd
         >
           {car.showViolations ? "Violations Shown..." : "Show violations"}
         </Button>
+      ),
+      user: (
+        <MDTypography component="a" variant="button" color="text" fontWeight="medium">
+          {car?.user?.email || "N/A"}
+        </MDTypography>
       ),
       edit: (
         <Button
@@ -121,10 +139,46 @@ export default function data(cars, deleteCar, showViolations, openDialog, openEd
         </Button>
       ),
     });
+  user?.car &&
+    rows.push({
+      "car plate": (
+        <MDBox mb={2}>
+          <MDInput
+            type="text"
+            label="Speed"
+            variant="standard"
+            fullWidth
+            value={speed}
+            onChange={(e) => setSpeed(e.target.value)}
+          />
+          <Typography mt={1} variant="h6" color="error" sx={{ fontWeight: 100 }} component="h2">
+            {errorSpeed}
+          </Typography>
+        </MDBox>
+      ),
+      "show violations": (
+        <MDButton
+          component="a"
+          rel="noreferrer"
+          variant="gradient"
+          color="info"
+          fullWidth
+          onClick={changeCarSpeed}
+        >
+          Set {user?.car?.plateNumber} speed
+        </MDButton>
+      ),
+      edit: (
+        <MDTypography component="a" variant="button" color="text" fontWeight="medium">
+          {user?.car?.speed} Km/H
+        </MDTypography>
+      ),
+    });
   return {
     columns: [
       { Header: "car plate", accessor: "car plate", align: "left" },
       { Header: "show violations", accessor: "show violations", align: "center" },
+      { Header: "user", accessor: "user", align: "center" },
       { Header: "edit", accessor: "edit", align: "center" },
       { Header: "delete car", accessor: "delete car", align: "center" },
     ],

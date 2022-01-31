@@ -6,6 +6,7 @@ import {
   SHOW_VIOLATIONS,
   SET_TRACKED,
   UPDATE_COORD,
+  UPDATE_SPEED,
 } from "../actions/cars";
 import _ from "lodash";
 
@@ -125,6 +126,20 @@ const cars = (
           oldCar.lastLat = car.lastLat;
           oldCar.lastLng = car.lastLng;
           oldCar.updateCoordTime = car.updateCoordTime;
+        }
+      }
+      return {
+        ...state,
+        cars: updatedCars,
+      };
+    }
+    case UPDATE_SPEED: {
+      const { car, token } = action;
+      token && localStorage.setItem("token", token);
+      const updatedCars = _.cloneDeep(state.cars);
+      for (let oldCar of updatedCars) {
+        if (oldCar.plateNumber === car.plateNumber) {
+          oldCar.speed = car.speed;
         }
       }
       return {

@@ -9,6 +9,7 @@ import {
   showViolations,
   setTracked,
   updateCoord,
+  updateCarSpeed,
 } from "./cars";
 import { addUserAction, recieveUsersAction, deleteUserAction, editUserAction } from "./users";
 import {
@@ -35,6 +36,7 @@ import {
   addUser,
   editUser,
   deleteUser,
+  updateCarSpeedApi,
 } from "../utils/API";
 import { getUserData } from "../utils/helpers";
 
@@ -58,11 +60,12 @@ export const handleAddUser = (userFormData) => {
     const res = await addUser(userFormData);
     if (res?.success === true) {
       dispatch(addUserAction(res.user));
+      dispatch(addMssg({ userSuccess: "User was added successfully!" }));
     } else {
       dispatch(
         addMssg({
-          errorMessage: res?.message || "Something went wrong!",
-          validators: res?.validators || undefined,
+          userError: res?.message || "Something went wrong!",
+          userValidators: res?.validators || undefined,
         })
       );
     }
@@ -165,7 +168,9 @@ export const handleDeleteCar = (plateNumber) => {
 
 export const handleDeleteUser = (id) => {
   return async (dispatch, getState) => {
+    console.log("the user id is", id);
     const res = await deleteUser(id);
+    console.log("the res for delete user is", res);
     if (res?.success === true) {
       const { currentPage, currentSearch } = getState().users;
       console.log("current page is", currentPage);
@@ -186,12 +191,13 @@ export const handleUpdateUser = (user, id) => {
   return async (dispatch) => {
     const res = await editUser(user, id);
     if (res?.success === true) {
-      dispatch(editUserAction(res.user));
+      dispatch(editUserAction(res.user, res?.token));
+      dispatch(addMssg({ userSuccess: "User was edited successfully!" }));
     } else {
       dispatch(
         addMssg({
-          errorMessage: res?.message || "Something went wrong!",
-          validators: res?.validators || undefined,
+          userError: res?.message || "Something went wrong!",
+          userValidators: res?.validators || undefined,
         })
       );
     }
@@ -203,6 +209,22 @@ export const handleUpdateCar = (car, plateNumber) => {
     const res = await updateCarAPI(car, plateNumber);
     if (res?.success === true) {
       dispatch(editCar(res.car, plateNumber));
+    } else {
+      dispatch(
+        addMssg({
+          errorMessage: res?.message || "Something went wrong!",
+          validators: res?.validators || undefined,
+        })
+      );
+    }
+  };
+};
+
+export const handleUpdateCarSpeed = (speed) => {
+  return async (dispatch) => {
+    const res = await updateCarSpeedApi(speed);
+    if (res?.success === true) {
+      dispatch(updateCarSpeed(res.car, res?.token));
     } else {
       dispatch(
         addMssg({
@@ -293,6 +315,14 @@ export const handleAddViolation = (violation) => {
   return (dispatch) => {
     console.log("in add violation");
     dispatch(addViolation(violation));
+  };
+};
+
+export const handleClearMessage = () => {
+  console.log("before dispatch");
+  return (dispatch) => {
+    console.log("in dispatch");
+    dispatch(addMssg({}));
   };
 };
 

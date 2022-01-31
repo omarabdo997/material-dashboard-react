@@ -72,6 +72,23 @@ export const updateCarAPI = async (car, plateNumber) => {
   return res.json();
 };
 
+export const updateCarSpeedApi = async (speed) => {
+  const token = localStorage.getItem("token");
+  const bearerToken = `Bearer ${token}`;
+  const res = await fetch(endPoint + `/api/car/speed`, {
+    method: "PATCH",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: bearerToken,
+    },
+    body: JSON.stringify({
+      speed,
+    }),
+  });
+  return res.json();
+};
+
 const callGet = async (url) => {
   try {
     const token = localStorage.getItem("token");

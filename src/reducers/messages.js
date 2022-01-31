@@ -4,7 +4,6 @@ export default function messages(state = {}, action) {
   switch (action.type) {
     case ADD_MSSG:
       return {
-        ...state,
         ...action.mssg,
       };
     case REMOVE_MSSG:

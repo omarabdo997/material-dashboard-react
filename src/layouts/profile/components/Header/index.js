@@ -27,6 +27,8 @@ import Tab from "@mui/material/Tab";
 import Icon from "@mui/material/Icon";
 import Tooltip from "@mui/material/Tooltip";
 
+import avatar from "../../../../assets/images/avatar.png";
+
 // Material Dashboard 2 React components
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
@@ -100,7 +102,12 @@ function Header({ children, edit }) {
       >
         <Grid container spacing={3} alignItems="center">
           <Grid item>
-            <MDAvatar src={endPoint + user?.imageUrl} alt="profile-image" size="xl" shadow="sm" />
+            <MDAvatar
+              src={user?.imageUrl ? endPoint + user?.imageUrl : avatar}
+              alt="profile-image"
+              size="xl"
+              shadow="sm"
+            />
           </Grid>
           {/* <Grid item> */}
           <MDBox display="flex" justifyContent="space-between" alignItems="center" pt={2} px={2}>

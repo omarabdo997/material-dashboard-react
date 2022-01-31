@@ -23,6 +23,8 @@ import { connect } from "react-redux";
 
 import {
   handleRecieveCars,
+  handleRecieveUsers,
+  handleDeleteUser,
   handleAddCar,
   handleUpdateCar,
   handleDeleteCar,
@@ -30,6 +32,7 @@ import {
   handleRecieveViolations,
   handleIssueViolation,
   handleDeleteViolation,
+  handleUpdateCarSpeed,
 } from "../../actions";
 
 // Material Dashboard 2 React components
@@ -39,6 +42,7 @@ import MDTypography from "components/MDTypography";
 // Material Dashboard 2 React example components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import CarDialog from "examples/Modals/CarDialog";
+import UserDialog from "examples/Modals/EditUserDialog";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import DataTable from "examples/Tables/DataTable";
@@ -48,16 +52,43 @@ import { getUserData } from "utils/helpers";
 import authorsTableData from "layouts/tables/data/authorsTableData";
 import usersTableData from "layouts/tables/data/usersTableData";
 import projectsTableData from "layouts/tables/data/projectsTableData";
+import EditUserDialog from "examples/Modals/EditUserDialog";
+import Validator from "validator";
 
 function Tables(props) {
   const { violations, cars, messages, users } = props;
+  const [speed, setSpeed] = useState("");
+  const [errorSpeed, setErrorSpeed] = useState("");
   const [addCarDialogOpen, setAddCarDialogOpen] = useState(false);
+  const [editUserDialogOpen, setEditUserDialogOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState(undefined);
   const [editCarDialogOpen, setEditCarDialogOpen] = useState("");
 
   const user = getUserData();
 
+  const changeSpeed = (value) => {
+    setSpeed(value);
+  };
+
+  const changeCarSpeed = () => {
+    if (!Validator.isInt(speed)) {
+      setErrorSpeed("The speed should be an integer number!");
+      return;
+    }
+    setErrorSpeed("");
+    props.dispatch(handleUpdateCarSpeed(speed));
+  };
   const openAddCarDialog = () => {
     setAddCarDialogOpen(true);
+  };
+
+  const openEditUserDialog = (user) => {
+    setEditingUser(user);
+    setEditUserDialogOpen(true);
+  };
+
+  const closeEditUserDialog = () => {
+    setEditUserDialogOpen(false);
   };
 
   const openEditCarDialog = (plateNumber) => {
@@ -75,12 +106,21 @@ function Tables(props) {
   const deleteCar = (plateNumber) => {
     props.dispatch(handleDeleteCar(plateNumber));
   };
+  const deleteUser = (id) => {
+    props.dispatch(handleDeleteUser(id));
+  };
   const recieveCars = (page) => {
     props.dispatch(handleRecieveCars(page));
+  };
+  const recieveUsers = (page) => {
+    props.dispatch(handleRecieveUsers(page));
   };
 
   const searchCars = (search) => {
     props.dispatch(handleRecieveCars(1, search));
+  };
+  const searchUsers = (search) => {
+    props.dispatch(handleRecieveUsers(1, search));
   };
   const recieveViolations = (page, type, plateNumber) => {
     props.dispatch(handleRecieveViolations(page, type, plateNumber));
@@ -118,22 +158,24 @@ function Tables(props) {
     deleteCar,
     showViolations,
     openAddCarDialog,
-    openEditCarDialog
+    openEditCarDialog,
+    speed,
+    changeSpeed,
+    errorSpeed,
+    changeCarSpeed
   );
-  const { columns: ucolumns, rows: urows } = usersTableData(
-    users,
-    deleteCar,
-    showViolations,
-    openAddCarDialog,
-    openEditCarDialog
-  );
+  const { columns: ucolumns, rows: urows } = usersTableData(users, deleteUser, openEditUserDialog);
   const { columns: pColumns, rows: pRows } = projectsTableData(
     violations,
     deleteViolation,
     issueViolation
   );
   console.log(ucolumns, urows);
-
+  console.log("the cars test now are", cars?.cars);
+  console.log(
+    "the chosen car is",
+    cars?.cars?.filter((car) => car?.plateNumber == editCarDialogOpen)[0]
+  );
   return (
     <DashboardLayout>
       <CarDialog
@@ -149,6 +191,12 @@ function Tables(props) {
         open={editCarDialogOpen}
         cancelFunction={() => setEditCarDialogOpen("")}
         submitFunction={editCar}
+        car={cars?.cars?.filter((car) => car?.plateNumber == editCarDialogOpen)[0]}
+      />
+      <EditUserDialog
+        user={editingUser}
+        open={editUserDialogOpen}
+        closeEdit={closeEditUserDialog}
       />
       <DashboardNavbar />
       <MDBox pt={6} pb={3}>
@@ -216,8 +264,8 @@ function Tables(props) {
                     showTotalEntries={true}
                     entriesPerPage={false}
                     showTotalEntries={false}
-                    recieveData={recieveCars}
-                    searchFunctionality={searchCars}
+                    recieveData={recieveUsers}
+                    searchFunctionality={searchUsers}
                     canSearch
                     noEndBorder
                   />

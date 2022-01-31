@@ -25,7 +25,7 @@ import team4 from "assets/images/team-4.jpg";
 
 import "./index.css";
 
-export default function data(users, deleteUser, openDialog, openEditDialog) {
+export default function data(users, deleteUser, openEditDialog) {
   const levels = { 1: "Admin", 2: "Desk Operator", 3: "Car Operator" };
   const loggedUser = getUserData();
   const Author = ({ image, name, email }) => (
@@ -69,6 +69,11 @@ export default function data(users, deleteUser, openDialog, openEditDialog) {
           {user?.phone || "N/A"}
         </MDTypography>
       ),
+      car: (
+        <MDTypography component="a" variant="button" color="text" fontWeight="medium">
+          {user?.car?.plateNumber || "N/A"}
+        </MDTypography>
+      ),
       edit: (
         <Button
           component="a"
@@ -76,7 +81,7 @@ export default function data(users, deleteUser, openDialog, openEditDialog) {
           color="text"
           fontWeight="medium"
           disabled={loggedUser.level != 1}
-          onClick={() => openEditDialog(car.plateNumber)}
+          onClick={() => openEditDialog(user)}
         >
           edit
         </Button>
@@ -85,10 +90,10 @@ export default function data(users, deleteUser, openDialog, openEditDialog) {
         <Button
           component="a"
           variant="caption"
-          className={loggedUser.level == 1 ? "delete-car" : ""}
+          className={loggedUser.id != user?.id ? "delete-car" : ""}
           fontWeight="medium"
-          disabled={loggedUser.level != 1}
-          onClick={() => deleteCar(car.plateNumber)}
+          disabled={loggedUser.id == user?.id}
+          onClick={() => deleteUser(user?.id)}
         >
           Delete
         </Button>
@@ -102,6 +107,7 @@ export default function data(users, deleteUser, openDialog, openEditDialog) {
       { Header: "function", accessor: "function", align: "left" },
       { Header: "type", accessor: "type", align: "left" },
       { Header: "mobile", accessor: "mobile", align: "center" },
+      { Header: "car", accessor: "car", align: "center" },
       { Header: "edit", accessor: "edit", align: "center" },
       { Header: "delete user", accessor: "delete user", align: "center" },
     ],

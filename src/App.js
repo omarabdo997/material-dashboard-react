@@ -101,10 +101,12 @@ function App(props) {
       icon="dangerous"
       title={violation?.type === 1 ? "Speed Violation" : "Distracted Driver Violation"}
       content={
-        <p>
-          Speed: {violation?.speed} <br />
-          Max Speed: {violation?.speedLimit}
-        </p>
+        violation?.type === 1 ? (
+          <p>
+            Speed: {violation?.speed} <br />
+            Max Speed: {violation?.speedLimit}
+          </p>
+        ) : null
       }
       dateTime={violation?.issuer}
       open={violationSB}

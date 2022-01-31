@@ -9,17 +9,37 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import Validator from "validator";
 
-export default function CarDialog({ title, submitText, open, cancelFunction, submitFunction }) {
-  const [carPlate, setCarPlate] = useState("");
-  const [error, setError] = useState("");
+export default function CarDialog({
+  title,
+  submitText,
+  open,
+  cancelFunction,
+  submitFunction,
+  car,
+}) {
+  console.log("the car is", car);
+  const [carPlate, setCarPlate] = useState(car?.plateNumber || "");
+  const [endpoint, setEndpoint] = useState(car?.endpoint || "");
+  const [errorPlate, setErrorPlate] = useState("");
+  const [errorEndpoint, setErrorEndpoint] = useState("");
   const handleSubmit = () => {
     if (!Validator.isLength(carPlate, { min: 3, max: 10 })) {
-      setError("The plate number should be between 3 to 10 chars!");
+      setErrorPlate("The plate number should be between 3 to 10 chars!");
       return;
     }
-    setError("");
-    submitFunction({ plateNumber: carPlate }, open);
+    // if (endpoint && !Validator.isDataURI(endpoint)) {
+    //   setErrorEndpoint("Please enter a valid endpoint url!");
+    //   return;
+    // }
+    setErrorPlate("");
+    setErrorEndpoint("");
+    const endpointData = endpoint || undefined;
+    submitFunction({ plateNumber: carPlate, endpoint: endpointData }, open);
   };
+  React.useEffect(() => {
+    setCarPlate(car?.plateNumber || "");
+    setEndpoint(car?.endpoint || "");
+  }, [car]);
   return (
     <div>
       <Dialog open={open} onClose={cancelFunction}>
@@ -39,7 +59,22 @@ export default function CarDialog({ title, submitText, open, cancelFunction, sub
             sx={{ width: "400px" }}
           />
           <Typography mt={1} variant="h6" color="error" sx={{ fontWeight: 100 }} component="h2">
-            {error}
+            {errorPlate}
+          </Typography>
+          <TextField
+            margin="dense"
+            id="endpoint"
+            name="endpoint"
+            label="Endpoin(optional)"
+            type="text"
+            value={endpoint}
+            onChange={(e) => setEndpoint(e.target.value)}
+            fullWidth
+            variant="standard"
+            sx={{ width: "400px" }}
+          />
+          <Typography mt={1} variant="h6" color="error" sx={{ fontWeight: 100 }} component="h2">
+            {errorEndpoint}
           </Typography>
         </DialogContent>
         <DialogActions>

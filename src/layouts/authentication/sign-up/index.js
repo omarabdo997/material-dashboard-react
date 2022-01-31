@@ -42,12 +42,20 @@ import Avatar from "@mui/material/Avatar";
 import Stack from "@mui/material/Stack";
 import { getAllCarsApi, endPoint } from "utils/API";
 import { getUserData } from "utils/helpers";
+import { connect } from "react-redux";
+import {
+  handleAddUser,
+  handleUpdateUser,
+  handleClearMessage,
+  handleRecieveUsers,
+} from "../../../actions";
 
 const Input = styled("input")({
   display: "none",
 });
 
-function Cover({ edit, user, onSubmit }) {
+function Cover(props) {
+  const { messages, dispatch, edit, user, onSubmit } = props;
   const loggedUser = getUserData();
   console.log("the passed user is", user);
   const levels = { Admin: 1, "Desk Operator": 2, "Car Operator": 3 };
@@ -75,7 +83,7 @@ function Cover({ edit, user, onSubmit }) {
   const [imageSrc, setImageSrc] = useState(user?.imageUrl ? endPoint + user?.imageUrl : "");
   const [cars, setCars] = useState([]);
   const [car, setCar] = useState(user?.car?.plateNumber || "No Option");
-  const [carsSearch, setCarsSearch] = useState(user?.car?.plateNumber || "");
+  const [carsSearch, setCarsSearch] = useState("");
 
   console.log("cars state", cars);
   useEffect(() => {
@@ -96,6 +104,56 @@ function Cover({ edit, user, onSubmit }) {
       }
     }, 300);
   }, [carsSearch]);
+
+  useEffect(() => {
+    if (messages?.userSuccess) {
+      if (!edit) {
+        setSuccessMessage(messages?.userSuccess);
+        setName("");
+        setPhone("");
+        setPosition("");
+        setInfo("");
+        setLevel("Desk Operator");
+        setCar("No Option");
+        setEmail("");
+        setMyPassword("");
+        setPassword("");
+        setConfirmPassword("");
+        setImage(undefined);
+        setImageSrc("");
+      } else {
+        setSuccessMessage(messages?.userSuccess);
+        setName("");
+        setPhone("");
+        setPosition("");
+        setInfo("");
+        setLevel("Desk Operator");
+        setCar("No Option");
+        setEmail("");
+        setMyPassword("");
+        setPassword("");
+        setConfirmPassword("");
+        setImage(undefined);
+        setImageSrc("");
+        onSubmit();
+      }
+    } else {
+      if (messages?.userValidators) {
+        for (let validator of messages?.userValidators) {
+          setErrorMessages(validator.msg, validator.param);
+        }
+      } else {
+        setErrorMessages(messages?.userError);
+      }
+    }
+  }, [messages]);
+
+  useEffect(() => {
+    return () => {
+      console.log("cleaning up...");
+      dispatch(handleClearMessage());
+    };
+  }, []);
 
   const setErrorMessages = (message, type = "") => {
     if (type === "name") {
@@ -147,17 +205,17 @@ function Cover({ edit, user, onSubmit }) {
     formData.append("image", image);
     formData.append("email", email);
     formData.append("myPassword", myPassword);
-    formData.append("password", password);
+    password && formData.append("password", password);
     formData.append("phone", phone);
     formData.append("position", position);
     formData.append("info", info);
     formData.append("level", levels[level]);
+    console.log("the car is", car);
     car !== "No Option" && formData.append("carId", car);
-    let res;
     if (edit) {
-      res = await editUser(formData, user?.id);
+      dispatch(handleUpdateUser(formData, user?.id));
     } else {
-      res = await addUser(formData);
+      dispatch(handleAddUser(formData));
     }
 
     setSuccessMessage("");
@@ -170,46 +228,6 @@ function Cover({ edit, user, onSubmit }) {
     setErrorMessagePassword("");
     setErrorMessageConfirmPassword("");
     setErrorMessage("");
-    if (res.success) {
-      if (!edit) {
-        setSuccessMessage("User was added successfully!");
-        setName("");
-        setPhone("");
-        setPosition("");
-        setInfo("");
-        setLevel("Desk Operator");
-        setCar("No Option");
-        setEmail("");
-        setMyPassword("");
-        setPassword("");
-        setConfirmPassword("");
-        setImage(undefined);
-        setImageSrc("");
-      } else {
-        setSuccessMessage("User was edited successfully!");
-        setName("");
-        setPhone("");
-        setPosition("");
-        setInfo("");
-        setLevel("Desk Operator");
-        setCar("No Option");
-        setEmail("");
-        setMyPassword("");
-        setPassword("");
-        setConfirmPassword("");
-        setImage(undefined);
-        setImageSrc("");
-        onSubmit();
-      }
-    } else {
-      if (res.validators) {
-        for (let validator of res.validators) {
-          setErrorMessages(validator.msg, validator.param);
-        }
-      } else {
-        setErrorMessages(res.message);
-      }
-    }
   };
   if (!edit) {
     return (
@@ -431,7 +449,7 @@ function Cover({ edit, user, onSubmit }) {
                     />
                   )}
                 />
-                <Typography
+                {/* <Typography
                   mt={1}
                   variant="h6"
                   color="error"
@@ -439,7 +457,7 @@ function Cover({ edit, user, onSubmit }) {
                   component="h2"
                 >
                   {errorMessageLevel}
-                </Typography>
+                </Typography> */}
               </MDBox>
               <MDBox mt={4} mb={1}>
                 <MDButton variant="gradient" color="info" fullWidth onClick={handleSubmit}>
@@ -556,7 +574,7 @@ function Cover({ edit, user, onSubmit }) {
               <MDBox mb={2}>
                 <MDInput
                   type="password"
-                  label="My Current Password"
+                  label="My Current Password (if changing the password)"
                   variant="standard"
                   fullWidth
                   value={myPassword}
@@ -566,7 +584,7 @@ function Cover({ edit, user, onSubmit }) {
               <MDBox mb={2}>
                 <MDInput
                   type="password"
-                  label="Password"
+                  label="Password(optional)"
                   variant="standard"
                   fullWidth
                   value={password}
@@ -702,15 +720,15 @@ function Cover({ edit, user, onSubmit }) {
                     />
                   )}
                 />
-                <Typography
+                {/* <Typography
                   mt={1}
                   variant="h6"
                   color="error"
                   sx={{ fontWeight: 100 }}
                   component="h2"
                 >
-                  {errorMessageLevel}
-                </Typography>
+                  {errorMessageCar}
+                </Typography> */}
               </MDBox>
               <MDBox mt={4} mb={1}>
                 <MDButton variant="gradient" color="info" fullWidth onClick={handleSubmit}>
@@ -743,4 +761,7 @@ function Cover({ edit, user, onSubmit }) {
   }
 }
 
-export default Cover;
+const stateToProps = ({ messages }, { edit, user, onSubmit }) => {
+  return { messages, edit, user, onSubmit };
+};
+export default connect(stateToProps)(Cover);

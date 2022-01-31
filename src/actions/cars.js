@@ -5,6 +5,7 @@ export const RECIEVE_CARS = "RECIEVE_CARS";
 export const SHOW_VIOLATIONS = "SHOW_VIOLATIONS";
 export const SET_TRACKED = "SET_TRACKED";
 export const UPDATE_COORD = "UPDATE_COORD";
+export const UPDATE_SPEED = "UPDATE_SPEED";
 
 export const addCar = (car) => ({
   type: ADD_CAR,
@@ -34,6 +35,12 @@ export const editCar = (car, plateNumber) => ({
 export const updateCoord = (car) => ({
   type: UPDATE_COORD,
   car,
+});
+
+export const updateCarSpeed = (car, token) => ({
+  type: UPDATE_SPEED,
+  car,
+  token,
 });
 
 export const showViolations = (plateNumber) => ({
